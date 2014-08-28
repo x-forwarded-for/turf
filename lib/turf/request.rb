@@ -27,7 +27,7 @@ module Turf
           raise Exception.new "To Implement"
         elsif hostname
           @hostname = hostname
-          @port = port ? port.to_i : (use_ssl ? 80 : 443)
+          @port = port ? port.to_i : (use_ssl ? 443 : 80)
           @use_ssl = use_ssl
           @url = url
         else
