@@ -30,7 +30,7 @@ module Turf::Message
     headers.select { |n, v| n.downcase == name.downcase }.map(&:last)
   end
 
-  def has_header(headers, name, value: nil)
+  def has_header(headers, name, value = nil)
     headers.each do |n, v|
       if n.downcase == name.downcase
         return true if not value or v.downcase == value.downcase
