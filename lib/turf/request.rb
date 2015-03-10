@@ -23,12 +23,15 @@ module Turf
         io = StringIO.new(io) if io.is_a? String
         start_line = read_start_line(io)
         @method, url, @http_version = start_line
-        if @method == "CONNECT"
-          raise Exception.new "To Implement"
+        if /\ACONNECT\z/i =~ @method
+          @hostname, port = url.split(":", 2)
+          @port = port.to_i
+          @use_ssl = false
+          @url = ""
         elsif hostname
           @hostname = hostname
           @port = port ? port.to_i : (use_ssl ? 443 : 80)
-          @use_ssl = use_ssl
+          @use_ssl = use_ssl ? use_ssl : (@port == 443 ? true : false)
           @url = url
         else
           p_url = URI(url)
@@ -68,7 +71,11 @@ module Turf
       end
 
       def to_s
-        start_line = [@method, @url, @http_version].join(" ")
+        if /\ACONNECT\z/i =~ @method
+          start_line = [@method, "#{@hostname}:#{@port}", @http_version].join(" ")
+        else
+          start_line = [@method, @url, @http_version].join(" ")
+        end
         data = [start_line, @raw_headers, ""].join("\r\n")
         data << @raw_content
         return data

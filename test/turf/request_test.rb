@@ -28,6 +28,14 @@ class RequestTest < MiniTest::Test
     assert_equal(r.url, "/")
   end
 
+  def test_new_proxy_https_connect
+    @io = StringIO.new "CONNECT example.org:4343 HTTP/1.1\r\n\r\n"
+    r = Turf::Request.new @io
+    assert_equal(r.hostname, "example.org")
+    assert_equal(r.port, 4343)
+    assert_equal(r.to_s, "CONNECT example.org:4343 HTTP/1.1\r\n\r\n")
+  end
+
   def test_run
     @io = StringIO.new "GET http://example.org/ HTTP/1.1\r\n\r\n"
     r = Turf::Request.new @io
