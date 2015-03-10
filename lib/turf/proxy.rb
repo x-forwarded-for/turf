@@ -15,15 +15,43 @@ module Turf
       @client = client
       @close_connection = true
       handle_one_request
+      @client.close
+    end
+
+    def apply_rules
+      @proxy.rules.each do |rule, action|
+         return action if rule.call(@request)
+      end
+    end
+
+    def terminal_action?(action)
+      [:forward, :drop].include? action
+    end
+
+    def perform_action(action)
+      case action
+      when :view
+        puts @request.to_s
+      when :view_headers
+        puts @request.headers.to_s
+      end
     end
 
     def handle_one_request
       read_request
-      puts @request.inspect
-      interact_request
+      action = @proxy.rules ? apply_rules : nil
+      loop do
+        puts @request.inspect
+        unless action
+          action = interact_request
+        end
+        perform_action action
+        break if terminal_action? action
+        action = nil
+      end
+      return if action == :drop
 
       @request.run
-      puts "Done running request"
 
       puts @request.response.inspect
       interact_response
@@ -39,14 +67,14 @@ module Turf
     end
 
     def interact_request
+      action_map = { "f" => :forward, "v" => :view, "d" => :drop,
+                     "h" => :view_headers }
       loop do
-        puts '[f]orward, (v)iew ?'
-        action = gets.chomp
-        case action
-        when 'v'
-          puts @request.to_s
-        when '', 'f'
-          break
+        puts '[f]orward, (d)rop, (v)iew, (h)eaders  ?'
+        a = gets.chomp
+        a = a.empty? ? "f" : a
+        if action_map.include?(a)
+          return action_map[a]
         end
       end
     end
@@ -64,9 +92,10 @@ module Turf
     attr_accessor :persistent
     attr_accessor :verbose
 
-    def initialize(hostname: nil, port: nil)
+    def initialize(hostname: nil, port: nil, rules: nil)
       @hostname = hostname || "127.0.0.1"
       @port = port || 8080
+      @rules = rules
     end
 
     def start_sync
@@ -88,8 +117,9 @@ module Turf
 
   module_function
 
-  def proxy
-    p = Proxy.new
+  def proxy(*args)
+    p = Proxy.new *args
     p.start_sync
   end
+
 end
