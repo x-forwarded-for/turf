@@ -42,7 +42,9 @@ module Turf::Message
 
   def read_content(io, headers, status: nil, method: nil, chunk_cb: nil)
     return "" if %w{204 304}.include? status
-    if has_header(headers, 'Content-Length')
+    if has_header(headers, 'Transfer-Encoding', 'chunked')
+      return read_chunked(io)
+    elsif has_header(headers, 'Content-Length')
       l = get_header(headers, 'Content-Length').first.to_i
       raise Exception('Invalid Content-Length') if l < 0
       return read_exactly(io, l)
@@ -50,6 +52,24 @@ module Turf::Message
       return io.read()
     end
     return ""
+  end
+
+  def read_chunked(io)
+    b = String.new
+    loop do
+      diff = String.new
+      l = io.readline
+      diff << l
+      s = l.to_i(16)
+      if s == 0
+        diff << io.readline
+        b << diff
+        return b
+      end
+      diff << read_exactly(io, s)
+      diff << io.readline
+      b << diff
+    end
   end
 
   def read_exactly(io, length)

@@ -45,4 +45,10 @@ class RequestTest < MiniTest::Test
     assert_equal(r.response.to_s.include?('<title>400 - Bad Request</title>'), true)
   end
 
+  def test_chunked
+     @io = StringIO.new "GET http://example.org/ HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n8\r\nabcdefgh\r\n0\r\n\r\n"
+     r = Turf::Request.new @io
+     assert_equal(r.raw_content, "8\r\nabcdefgh\r\n0\r\n\r\n")
+  end
+
 end
