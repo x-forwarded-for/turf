@@ -13,8 +13,15 @@ module Turf
     def initialize(proxy, client)
       @proxy = proxy
       @client = client
-      @close_connection = true
-      handle_one_request
+      @close_connection = false
+      loop do
+        begin
+          handle_one_request
+        rescue EOFError
+          @close_connection = true
+        end
+        break if @close_connection
+      end
       @client.close
     end
 
@@ -49,7 +56,10 @@ module Turf
         break if terminal_action? action
         action = nil
       end
-      return if action == :drop
+      if action == :drop
+        @close_connection = true
+        return
+      end
 
       @request.run
 
