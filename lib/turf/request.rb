@@ -40,10 +40,10 @@ module Turf
           @hostname = p_url.host
           if p_url.scheme == 'https'
             @use_ssl = true
-            @port = port ? port.to_i : 443
+            @port = p_url.port ? p_url.port : 443
           else
             @use_ssl = false
-            @port = port ? port.to_i : 80
+            @port = p_url.port ? p_url.port : 80
           end
         end
         @raw_headers = read_headers(io)
@@ -55,14 +55,29 @@ module Turf
           parse_headers(@raw_headers)
       end
 
-      def connect
-        super @hostname, @port, @use_ssl
+      def connect(proxy: nil)
+        super(@hostname, @port, @use_ssl, proxy: proxy)
       end
 
-      def run(sock = nil, chunk_cb: nil)
-        sock ||= connect
+      def run(sock = nil, chunk_cb: nil, proxy: nil)
+        sock ||= connect(proxy: proxy)
         History.instance << self
-        send_all(sock, to_s)
+        if proxy
+          p = URI(proxy)
+          if p.scheme =~ /\Ahttps?\z/
+            url = URI::Generic.new(*(["http", "", @hostname, @port] +
+                    URI.split(@url)[4..-1])).to_s
+            start_line = [@method, url, @http_version].join(" ")
+            data = [start_line, @raw_headers, ""].join("\r\n")
+            data << @raw_content
+            send_all(sock, data)
+          else
+            raise NotImplementedError
+          end
+        else
+          puts to_s
+          send_all(sock, to_s)
+        end
         @response = read_response(sock)
       end
 

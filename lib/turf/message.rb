@@ -89,6 +89,11 @@ module Turf::Message
     return OpenSSL::SSL::SSLSocket.new sock
   end
 
+  def http_connect(hostname, port, proxy_hostname, proxy_port)
+    psock = TCPSocket.new(proxy_hostname, proxy_port)
+    return psock
+  end
+
   def direct_connect(hostname, port, use_ssl)
     sock = TCPSocket.new(hostname, port)
     if use_ssl
@@ -97,8 +102,17 @@ module Turf::Message
     return sock
   end
 
-  def connect(hostname, port, use_ssl)
-    direct_connect(hostname, port, use_ssl)
+  def connect(hostname, port, use_ssl, proxy: nil)
+    if proxy
+      url = URI(proxy)
+      if url.scheme =~ /\Ahttps?\z/
+        return http_connect(hostname, port, url.hostname, url.port)
+      else
+        raise NotImplementedError
+      end
+    else
+      return direct_connect(hostname, port, use_ssl)
+    end
   end
 
   def send_all(sock, buffer)
