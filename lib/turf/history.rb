@@ -16,3 +16,12 @@ class Turf::History < Turf::RequestArray
 
 end
 
+module Turf
+
+  module_function
+
+  def history
+    History.instance
+  end
+
+end
