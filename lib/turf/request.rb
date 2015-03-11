@@ -62,7 +62,7 @@ module Turf
       def run(sock = nil, chunk_cb: nil, proxy: nil)
         sock ||= connect(proxy: proxy)
         History.instance << self
-        if proxy
+        if proxy and not use_ssl
           p = URI(proxy)
           if p.scheme =~ /\Ahttps?\z/
             url = URI::Generic.new(*(["http", "", @hostname, @port] +
@@ -75,7 +75,6 @@ module Turf
             raise NotImplementedError
           end
         else
-          puts to_s
           send_all(sock, to_s)
         end
         @response = read_response(sock)

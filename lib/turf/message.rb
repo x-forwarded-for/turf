@@ -86,11 +86,22 @@ module Turf::Message
   end
 
   def wrap_socket(sock)
-    return OpenSSL::SSL::SSLSocket.new sock
+    tls_sock = OpenSSL::SSL::SSLSocket.new(sock)
+    tls_sock.connect
+    return tls_sock
   end
 
-  def http_connect(hostname, port, proxy_hostname, proxy_port)
+  def http_connect(hostname, port, use_ssl, proxy_hostname, proxy_port)
     psock = TCPSocket.new(proxy_hostname, proxy_port)
+    if use_ssl
+      psock.write("CONNECT #{hostname}:#{port} HTTP/1.1\r\n\r\n")
+      begin
+        v, s, m = read_start_line(psock)
+      rescue EOFError
+      end
+      _ = read_headers(psock)
+      psock = wrap_socket(psock)
+    end
     return psock
   end
 
@@ -106,7 +117,7 @@ module Turf::Message
     if proxy
       url = URI(proxy)
       if url.scheme =~ /\Ahttps?\z/
-        return http_connect(hostname, port, url.hostname, url.port)
+        return http_connect(hostname, port, use_ssl, url.hostname, url.port)
       else
         raise NotImplementedError
       end
@@ -118,7 +129,7 @@ module Turf::Message
   def send_all(sock, buffer)
     sent = 0
     loop do
-      sent += sock.send(buffer[sent..-1], 0)
+      sent += sock.write(buffer[sent..-1])
       break if sent == buffer.length
     end
   end
