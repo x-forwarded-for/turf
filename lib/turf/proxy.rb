@@ -112,6 +112,7 @@ module Turf
       server = TCPServer.new @hostname, @port
       server.setsockopt(:SOCKET, :REUSEADDR, true)
       Thread.abort_on_exception = true
+      puts "Running on #{@hostname}:#{@port}"
       begin
         loop do
           Thread.new(server.accept) do |client|
