@@ -118,16 +118,17 @@ module Turf
     def start_sync
       server = TCPServer.new @hostname, @port
       server.setsockopt(:SOCKET, :REUSEADDR, true)
-      Thread.abort_on_exception = true
       puts "Running on #{@hostname}:#{@port}"
+      threads = Array.new
       begin
         loop do
-          Thread.new(server.accept) do |client|
+          threads << Thread.new(server.accept) do |client|
             ProxyThread.new(self, client)
           end
         end
       rescue IRB::Abort # IRB translation for SIGINT
         server.shutdown
+        threads.each { |t| t.terminate }
       end
     end
 
