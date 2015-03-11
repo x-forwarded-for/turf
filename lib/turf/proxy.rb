@@ -46,6 +46,9 @@ module Turf
 
     def handle_one_request
       read_request
+      @proxy.requests_lock.synchronize {
+        @proxy.requests << @request
+      }
       action = @proxy.rules ? apply_rules : nil
       loop do
         puts @request.inspect
@@ -101,11 +104,15 @@ module Turf
     attr_accessor :rules
     attr_accessor :persistent
     attr_accessor :verbose
+    attr_accessor :requests
+    attr_accessor :requests_lock
 
     def initialize(hostname: nil, port: nil, rules: nil)
       @hostname = hostname || "127.0.0.1"
       @port = port || 8080
       @rules = rules
+      @requests = RequestArray.new
+      @requests_lock = Mutex.new
     end
 
     def start_sync
@@ -131,6 +138,7 @@ module Turf
   def proxy(*args)
     p = Proxy.new *args
     p.start_sync
+    return p.requests
   end
 
 end
