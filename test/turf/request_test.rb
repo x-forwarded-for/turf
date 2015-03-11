@@ -1,8 +1,17 @@
 require_relative '../test_helper'
-
-require 'webrick'
+require_relative 'dummy_server'
 
 class RequestTest < MiniTest::Test
+  include DummyServer
+
+  def setup
+    @ws = start_basic_webrick
+    wait_until_online "127.0.0.1", 8000
+  end
+
+  def teardown
+    @ws.terminate
+  end
 
   def test_new
     @io = StringIO.new "GET / HTTP/1.1\r\n\r\n"
@@ -37,16 +46,17 @@ class RequestTest < MiniTest::Test
   end
 
   def test_run
-    @io = StringIO.new "GET http://example.org/ HTTP/1.1\r\n\r\n"
+    @io = StringIO.new "GET http://127.0.0.1:8000/ HTTP/1.1\r\n\r\n"
     r = Turf::Request.new @io
     r.run
-    assert_equal(r.response.status, '400')
-    assert_equal(r.response.inspect, '<400 349 text/html>')
-    assert_equal(r.response.to_s.include?('<title>400 - Bad Request</title>'), true)
+    assert_equal(r.response.status, '200')
+    assert_equal(r.response.to_s.include?('Hello, world!'), true)
   end
 
   def test_chunked
-     @io = StringIO.new "GET http://example.org/ HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n8\r\nabcdefgh\r\n0\r\n\r\n"
+     @io = StringIO.new "GET http://example.org/ HTTP/1.1\r\n" +
+                        "Transfer-Encoding: chunked\r\n\r\n" +
+                        "8\r\nabcdefgh\r\n0\r\n\r\n"
      r = Turf::Request.new @io
      assert_equal(r.raw_content, "8\r\nabcdefgh\r\n0\r\n\r\n")
   end

@@ -1,31 +1,18 @@
 require_relative '../test_helper'
-
-require 'webrick'
+require_relative 'dummy_server'
 
 class ProxyTest < MiniTest::Test
+  include DummyServer
 
-  def wait_until_online(host, port)
-    loop do
-      begin
-        s = TCPSocket.new host, port
-        break if s
-      rescue Errno::ECONNREFUSED
-      end
-    end
+  def start_forward_proxy
+    Thread.new {
+      rs = Turf::proxy :rules => [[ proc {|x| true}, :forward ]]
+    }
   end
 
   def test_new
-    p  = Thread.new {
-      rs = Turf::proxy :rules => [[ proc {|x| true}, :forward ]]
-      puts rs.inspect
-    }
-    ws = Thread.new {
-      server = WEBrick::HTTPServer.new :Port => 8000
-      server.mount_proc '/' do |req, res|
-        res.body = 'Hello, world!'
-      end
-      server.start
-    }
+    p = start_forward_proxy
+    ws = start_basic_webrick
     wait_until_online '127.0.0.1', 8000
     wait_until_online '127.0.0.1', 8080
 
