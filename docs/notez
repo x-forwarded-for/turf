@@ -1,0 +1,136 @@
+### candidate 1
+
+access the same as class attribute
+respond_to_missing? (http://blog.marc-andre.ca/2010/11/15/methodmissing-politely/)
+
+**could be useful for other things: https://github.com/intridea/hashie
+**could be useful for default values/config: http://blog.arkency.com/2013/05/is-it-cute-or-ugly/#comment-898575014
+**Range has .cover to check if start/end
+
+**feature envy, asking too many questions/interrogation
+**avoid passing the same variables together, bind them together
+**god objects, high-churn files
+  **small classes
+
+
+pro:
+easy autocompletion when get+set
+
+con:
+only shortcut for standard header names
+  -problems with underscore/spaces/case
+    -tr('-_','_-')
+  -will therefore require another method of access
+what would r.headers actually return?
+  -openstruct?
+    -need to work out how to sync modifications back
+can how/how would r.headers= work?
+
+
+get
+r.headers.host
+
+set
+r.headers.host = 'www.google.com'
+
+create
+r.headers.host = 'www.google.com
+
+delete
+r.headers.host = nil
+r.headers.delete(host) ## same as array/hash
+http://stackoverflow.com/a/2012125
+
+check
+r.headers.host
+
+
+### burst
+
+has_header/get_header/remove_header helpers
+
+r.headers returns [["Host", "www.google.com"],...]
+
+
+
+### how do other non-ruby http libraries work?
+
+## python requests
+
+** interestingly has a session object for auto tracking cookies
+
+just concats them ", "
+case insensitive
+request.headers['set-cookie'] == 'a=1, b=2'
+
+## javascript xhr
+getResponseHeader and getallresponseheaders
+
+https://mxr.mozilla.org/mozilla-central/source/netwerk/protocol/http/nsHttpHeaderArray.h
+156     // Append the new value to the existing value
+157     if (header == nsHttp::Set_Cookie ||
+158         header == nsHttp::WWW_Authenticate ||
+159         header == nsHttp::Proxy_Authenticate)
+160     {
+161         // Special case these headers and use a newline delimiter to
+162         // delimit the values from one another as commas may appear
+163         // in the values of these headers contrary to what the spec says.
+164         entry->value.Append('\n');
+165     } else {
+166         // Delimit each value from the others using a comma (per HTTP spec)
+167         entry->value.AppendLiteral(", ");
+168     }
+
+### how do other ruby http libraries work?
+
+** see bookmark/youtube
+
+## rack
+header == headers
+Utils::HeaderHash.new
+@header['Transfer-Encoding']
+response has a helper module included, has things like ok? and forbidden?
+  but also includes location method returning headers['Location']
+  and include? -> !!headers[header]
+response has headers and original_headers (pre user modified)
+A case-insensitive Hash that preserves the original case of a header when set.
+Supports multi by the looks of yield(k, v.respond_to?(:to_ary) ? v.to_ary.join("\n") : v) in each
+MIT license
+
+## excon
+client cert support
+decent connection -> request idea
+interesting idea for chunks
+reasonable case insensitive hash for headers
+MIT license
+
+## httpclient
+library created by the talk comparing ruby http libs
+has a patch for webagent. webagent has minimal http support, maybe ok cookie support/tests
+nice irb/repl setup in bin/
+env variable for proxy
+httpclient + httpmessage, also has a "session" for a connection to a host
+get/head/etc methods for verbs, and other special cases for these
+res.header['Last-Modified'][0]
+client has a cookiemanager/proxy config
+httpclient is 1k+ lines
+http authenticatoin support is great!!
+header + http_header = get multiples
+headers == flatten
+
+## httprb
+
+#get body
+>> HTTP.get('https://github.com').to_s == response body
+>> HTTP.get('https://github.com').body.readpartial
+ => "<!doctype html><html "
+
+#headers (too much method chaining)
+HTTP.with_headers(:accept => 'application/json').get('https://github.com/httprb/http.rb/commit/HEAD')
+HTTP[:accept => 'application/json'].get('https://github.com/httprb/http.rb/commit/HEAD')
+HTTP.with(:accept => 'application/json').get('https://github.com/httprb/http.rb/commit/HEAD')
+
+#uses celluloid io gem for parallel requests from a single thread without callback hell
+socket_class = Celluloid::IO::TCPSocket or Celluloid::IO::TCPSocket
+
+** include vs extend http://www.railstips.org/blog/archives/2009/05/15/include-vs-extend-in-ruby/
