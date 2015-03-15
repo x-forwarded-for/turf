@@ -5,8 +5,8 @@ class RequestTest < MiniTest::Test
   include DummyServer
 
   def setup
-    @ws = start_basic_webrick
-    wait_until_online "127.0.0.1", 8000
+    @ws, @ws_port = start_basic_webrick
+    wait_until_online "127.0.0.1", @ws_port
   end
 
   def teardown
@@ -46,7 +46,7 @@ class RequestTest < MiniTest::Test
   end
 
   def test_run
-    @io = StringIO.new "GET http://127.0.0.1:8000/ HTTP/1.1\r\n\r\n"
+    @io = StringIO.new "GET http://127.0.0.1:#{@ws_port}/ HTTP/1.1\r\n\r\n"
     r = Turf::Request.new @io
     r.run
     assert_equal(r.response.status, '200')

@@ -14,14 +14,16 @@ module DummyServer
   end
 
   def start_basic_webrick
-    Thread.new {
-      server = WEBrick::HTTPServer.new(:Port => 8000, :AccessLog => [],
+    port = rand(1025..65535)
+    ws = Thread.new {
+      server = WEBrick::HTTPServer.new(:Port => port, :AccessLog => [],
                 :Logger => WEBrick::Log::new("/dev/null", 7))
       server.mount_proc '/' do |req, res|
         res.body = 'Hello, world!'
       end
       server.start
     }
+    return ws, port
   end
 
   def start_tls_webrick
