@@ -22,7 +22,7 @@ module Turf
         return OpenSSL::X509::Certificate.new File.read @cert_path
       else
         return generate_ca_cert
-      end   
+      end
     end
 
     def certificate(hostname)
@@ -36,7 +36,7 @@ module Turf
 
 
     private
-    
+
     def generate_serial
       Random.new.bytes(4).unpack("H*")[0].to_i(16)
     end
@@ -90,9 +90,9 @@ module Turf
       extension_factory.issuer_certificate = ca_certificate
 
       cert.sign key, OpenSSL::Digest::SHA1.new
-      open File.join(Configuration.instance.site_cert_dir, 
+      open File.join(Configuration.instance.site_cert_dir,
           "#{hostname}.pem"), 'w' do |io|
-        io.write cert.to_pem 
+        io.write cert.to_pem
       end
       return cert
     end
