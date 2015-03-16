@@ -42,11 +42,21 @@ class Turf::Response
   end
 
   def inspect
-    fields = [@status, Turf::human_readable_size(length)]
+    fields = [color_status(@status), Turf::human_readable_size(length)]
     if has_header(headers, 'Content-Type')
       fields << get_header(headers, 'Content-Type')
     end
     return '<' + fields.join(" ") + '>'
+  end
+
+
+  private
+
+  def color_status(status)
+    return status.green if /\A2/ =~ status
+    return status.yellow if /\A3/ =~ status
+    return status.red if /\A[45]/ =~ status
+    return status
   end
 
 end
