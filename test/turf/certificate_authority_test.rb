@@ -4,9 +4,9 @@ class CertificateAuthorityTest < MiniTest::Test
 
   def test_new
     ca = Turf::CertificateAuthority.new
-    puts ca.key
-    puts ca.ca_certificate
-    puts ca.certificate("example.org")
+    ca.key
+    ca.ca_certificate
+    ca.certificate("example.org")
   end
 
 end
