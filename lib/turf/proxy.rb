@@ -102,14 +102,21 @@ module Turf
     end
 
     def interact_request
-      action_map = { "f" => :forward, "v" => :view, "d" => :drop,
-                     "h" => :view_headers, "m" => :mitm_ssl }
+      action_map = { "v" => :view, "d" => :drop, "h" => :view_headers }
+      action_map_http  = action_map.merge({ "f" => :forward })
+      action_map_https = action_map.merge({ "m" => :mitm_ssl })
+      s = @request.method == "CONNECT"
+      am = s ? action_map_https : action_map_http
       loop do
-        puts '[f]orward, (d)rop, (v)iew, (h)eaders  ?'
+        if s
+          puts '[m]itm, (d)rop, (v)iew, (h)eaders ?'
+        else
+          puts '[f]orward, (d)rop, (v)iew, (h)eaders ?'
+        end
         a = gets.chomp
-        a = a.empty? ? "f" : a
-        if action_map.include?(a)
-          return action_map[a]
+        a = a.empty? ? (s ? "m" : "f") : a
+        if am.include?(a)
+          return am[a]
         end
       end
     end
