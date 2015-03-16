@@ -25,6 +25,17 @@ module Turf
       @client.close
     end
 
+    def mitm_ssl(hostname, port)
+      @client.write "HTTP/1.1 200 Connection established\r\n\r\n"
+      context = OpenSSL::SSL::SSLContext.new
+      context.cert = @proxy.ca.certificate(hostname)
+      context.key = @proxy.ca.key
+      @client = OpenSSL::SSL::SSLSocket.new @client, context
+      @client.accept
+      @request = Request.new @client, :hostname => hostname,
+                          :port => port, :use_ssl => true
+    end
+
     def apply_rules
       @proxy.rules.each do |rule, action|
          return action if rule.call(@request)
@@ -41,21 +52,32 @@ module Turf
         puts @request.to_s
       when :view_headers
         puts @request.headers.to_s
+      when :mitm_ssl
+        mitm_ssl(@request.hostname, @request.port)
       end
     end
 
-    def handle_one_request
-      read_request
+    def request_prologue
       @proxy.requests_lock.synchronize {
         @proxy.requests << @request
       }
       action = @proxy.rules ? apply_rules : nil
+      return action
+    end
+
+    def handle_one_request
+      read_request
+      action = request_prologue
       loop do
         puts @request.inspect
         unless action
           action = interact_request
         end
         perform_action action
+        if action == :mitm_ssl
+          action = request_prologue
+          next
+        end
         break if terminal_action? action
         action = nil
       end
@@ -76,12 +98,12 @@ module Turf
     end
 
     def write_response
-      @client.write @request.response
+      @client.write @request.response.to_s
     end
 
     def interact_request
       action_map = { "f" => :forward, "v" => :view, "d" => :drop,
-                     "h" => :view_headers }
+                     "h" => :view_headers, "m" => :mitm_ssl }
       loop do
         puts '[f]orward, (d)rop, (v)iew, (h)eaders  ?'
         a = gets.chomp
@@ -106,6 +128,7 @@ module Turf
     attr_accessor :verbose
     attr_accessor :requests
     attr_accessor :requests_lock
+    attr_accessor :ca
 
     def initialize(hostname: nil, port: nil, rules: nil)
       @hostname = hostname || "127.0.0.1"
@@ -113,6 +136,7 @@ module Turf
       @rules = rules
       @requests = RequestArray.new
       @requests_lock = Mutex.new
+      @ca = CertificateAuthority.new
     end
 
     def start_sync
