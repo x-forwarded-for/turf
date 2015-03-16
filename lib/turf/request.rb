@@ -62,7 +62,7 @@ module Turf
       def run(sock = nil, chunk_cb: nil, proxy: nil)
         sock ||= connect(proxy: proxy)
         History.instance << self
-        if proxy and not use_ssl
+        if proxy and not @use_ssl
           p = URI(proxy)
           if p.scheme =~ /\Ahttps?\z/
             url = URI::Generic.new(*(["http", "", @hostname, @port] +
