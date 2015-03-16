@@ -50,7 +50,8 @@ class RequestTest < MiniTest::Test
     r = Turf::Request.new @io
     r.run
     assert_equal(r.response.status, '200')
-    assert_equal(r.response.to_s.include?('Hello, world!'), true)
+    assert_includes(r.response.inspect, 'text/plain')
+    assert_includes(r.response.to_s, 'Hello, world!')
   end
 
   def test_chunked

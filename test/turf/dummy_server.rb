@@ -20,6 +20,7 @@ module DummyServer
       server = WEBrick::HTTPServer.new(:Port => port, :AccessLog => [],
                 :Logger => WEBrick::Log::new("/dev/null", 7))
       server.mount_proc '/' do |req, res|
+        res["Content-Type"] = "text/plain"
         res.body = 'Hello, world!'
       end
       server.start
