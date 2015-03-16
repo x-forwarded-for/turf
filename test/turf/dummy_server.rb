@@ -7,7 +7,8 @@ module DummyServer
     loop do
       begin
         s = TCPSocket.new host, port
-        break if s
+        s.close
+        break
       rescue Errno::ECONNREFUSED
       end
     end
@@ -27,9 +28,10 @@ module DummyServer
   end
 
   def start_tls_webrick
-    Thread.new {
+    port = rand(1025..65535)
+    ws = Thread.new {
       cert_name = [ %w[CN localhost], ]
-      server = WEBrick::HTTPServer.new(:Port => 8001, :AccessLog => [],
+      server = WEBrick::HTTPServer.new(:Port => port, :AccessLog => [],
                 :Logger => WEBrick::Log::new("/dev/null", 7),
                 :SSLEnable => true, :SSLCertName => cert_name)
       server.mount_proc '/' do |req, res|
@@ -37,6 +39,7 @@ module DummyServer
       end
       server.start
     }
+    return ws, port
   end
 
 end
