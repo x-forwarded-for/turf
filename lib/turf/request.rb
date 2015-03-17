@@ -50,6 +50,11 @@ class Turf::Request
     @response = nil
   end
 
+  def initialize_copy(source)
+    super
+    @response = nil
+  end
+
   def headers
       parse_headers(@raw_headers)
   end
@@ -98,15 +103,28 @@ class Turf::Request
     '<' + [color_method(@method), @hostname, @url].join(" ") + '>'
   end
 
-  def initialize_copy(source)
-    super
-    @response = nil
-  end
-
   def *(n)
     RequestArray.new (1..n).to_a.map { |x| self.clone }
   end
 
+  def update_content_length
+    l = @raw_content.length
+    @raw_headers = build_headers(add_header(remove_header(headers,
+                      'Content-Length'), 'Content-Length', l))
+  end
+
+  def inject_at(ip, payloads)
+    offset_begin = to_s.index(ip)
+    offset_end = offset_begin + ip.length
+    rs = Turf::RequestArray.new payloads.collect { |p|
+      nc = to_s[0...offset_begin] + p + to_s[offset_end..-1]
+      nc = nc.gsub(/^Content-Length:.*\n/, "")
+      nr = Turf::Request.new nc, hostname: @hostname, port: @port, use_ssl: @use_ssl
+      nr.update_content_length
+      nr
+    }
+    return rs
+  end
 
   private
 
