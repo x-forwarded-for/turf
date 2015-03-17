@@ -26,6 +26,10 @@ module Turf::Message
     return headers
   end
 
+  def build_headers(headers)
+    (headers.collect { |n, v| "#{n}: #{v}" } + [""]).join("\r\n")
+  end
+
   def get_header(headers, name)
     headers.select { |n, v| n.downcase == name.downcase }.map(&:last)
   end
@@ -38,6 +42,14 @@ module Turf::Message
       end
     end
     return false
+  end
+
+  def add_header(headers, name, value)
+    headers + [name, value]
+  end
+
+  def remove_header(headers, name)
+    headers.select { |n, v| n != name }
   end
 
   def read_content(io, headers, status: nil, method: nil, chunk_cb: nil)
