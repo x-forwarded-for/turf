@@ -42,18 +42,32 @@ module Turf
       end
     end
 
-    def terminal_action?(action)
-      [:forward, :drop].include? action
+    def is_connect?
+      @request.method == "CONNECT"
     end
 
-    def perform_action(action)
-      case action
+    def default_action
+      (is_connect? ? :mitm_ssl : :forward)
+    end
+
+    def terminal_action?
+      [:forward, :drop].include?(@action) or @proxy.continue
+    end
+
+    def perform_action
+      case @action
       when :view
         puts @request.to_s
       when :view_headers
         puts @request.headers.to_s
       when :mitm_ssl
         mitm_ssl(@request.hostname, @request.port)
+        @action = request_prologue
+      when :continue
+        @proxy.continue = true
+        @action = default_action
+        perform_action
+        puts @request.inspect
       end
     end
 
@@ -61,29 +75,29 @@ module Turf
       @proxy.requests_lock.synchronize {
         @proxy.requests << @request
       }
-      action = @proxy.rules ? apply_rules : nil
-      return action
+      @action = @proxy.rules ? apply_rules : nil
     end
 
     def handle_one_request
       read_request
-      action = request_prologue
+      request_prologue
       loop do
         puts @request.inspect
-        unless action
-          action = interact_request
+        unless @action
+          if @proxy.continue
+            @action = default_action
+          else
+            @action = interact_request
+          end
         end
-        perform_action action
-        if action == :mitm_ssl
-          action = request_prologue
-          next
+        perform_action
+        next if @action == :mitm_ssl
+        if @action == :drop
+          @close_connection = true
+          return
         end
-        break if terminal_action? action
-        action = nil
-      end
-      if action == :drop
-        @close_connection = true
-        return
+        break if terminal_action?
+        @action = nil
       end
 
       @request.run
@@ -102,19 +116,19 @@ module Turf
     end
 
     def interact_request
-      action_map = { "v" => :view, "d" => :drop, "h" => :view_headers }
+      action_map = {"c" => :continue, "v" => :view,
+                    "d" => :drop, "h" => :view_headers }
       action_map_http  = action_map.merge({ "f" => :forward })
       action_map_https = action_map.merge({ "m" => :mitm_ssl })
-      s = @request.method == "CONNECT"
-      am = s ? action_map_https : action_map_http
+      am = is_connect? ? action_map_https : action_map_http
       loop do
-        if s
-          puts '[m]itm, (d)rop, (v)iew, (h)eaders ?'
+        if is_connect?
+          puts '[m]itm, (c)ontinue, (d)rop, (v)iew, (h)eaders ?'
         else
-          puts '[f]orward, (d)rop, (v)iew, (h)eaders ?'
+          puts '[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ?'
         end
         a = gets.chomp
-        a = a.empty? ? (s ? "m" : "f") : a
+        a = a.empty? ? (is_connect? ? "m" : "f") : a
         if am.include?(a)
           return am[a]
         end
@@ -131,11 +145,10 @@ module Turf
     attr_accessor :hostname
     attr_accessor :port
     attr_accessor :rules
-    attr_accessor :persistent
-    attr_accessor :verbose
     attr_accessor :requests
     attr_accessor :requests_lock
     attr_accessor :ca
+    attr_accessor :continue
 
     def initialize(hostname: nil, port: nil, rules: nil)
       @hostname = hostname || "127.0.0.1"
@@ -144,6 +157,7 @@ module Turf
       @requests = RequestArray.new
       @requests_lock = Mutex.new
       @ca = CertificateAuthority.new
+      @continue = false
     end
 
     def start_sync
@@ -153,8 +167,18 @@ module Turf
       threads = Array.new
       begin
         loop do
-          threads << Thread.new(server.accept) do |client|
-            ProxyThread.new(self, client)
+          begin
+            threads << Thread.new(server.accept) do |client|
+              ProxyThread.new(self, client)
+            end
+            rescue IRB::Abort
+              if @continue
+                @continue = false
+                puts "Manual mode"
+                puts "Use Ctrl-C one more time to quit"
+              else
+                raise
+              end
           end
         end
       rescue IRB::Abort # IRB translation for SIGINT
