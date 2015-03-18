@@ -5,8 +5,8 @@ module Turf
   class CertificateAuthority
 
     def initialize
-      @key_path = File.join Configuration.instance.cert_dir, "key.pem"
-      @cert_path = File.join Configuration.instance.cert_dir, "cert.pem"
+      @key_path = File.join Configuration.instance.path, "key.pem"
+      @cert_path = File.join Configuration.instance.path, "cert.pem"
     end
 
     def key
@@ -26,7 +26,7 @@ module Turf
     end
 
     def certificate(hostname)
-      cert_path = File.join(Configuration.instance.site_cert_dir, "#{hostname}.pem")
+      cert_path = File.join(Configuration.instance.cert_dir, "#{hostname}.pem")
       if File.exist?(cert_path)
         return OpenSSL::X509::Certificate.new File.read cert_path
       else
@@ -90,7 +90,7 @@ module Turf
       extension_factory.issuer_certificate = ca_certificate
 
       cert.sign key, OpenSSL::Digest::SHA1.new
-      open File.join(Configuration.instance.site_cert_dir,
+      open File.join(Configuration.instance.cert_dir,
           "#{hostname}.pem"), 'w' do |io|
         io.write cert.to_pem
       end
