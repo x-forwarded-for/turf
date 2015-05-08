@@ -9,7 +9,7 @@ class Turf::RequestArray < Array
         status["unkown"] += 1
       end
     }
-    st = status.to_a.collect{ |k,v| "#{k}:#{v}" }.join(" ")
+    st = status.to_a.collect{ |k,v| "#{Turf::Response.color_status(k)}:#{v}" }.join(" ")
     hostnames = collect { |r| r.hostname }.uniq.join(", ")
     return "<#{length} ~ #{st} | #{hostnames}>"
   end

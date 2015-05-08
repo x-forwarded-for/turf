@@ -1,6 +1,6 @@
 
 class Turf::Response
-  
+
   include Turf::Message
 
   attr_accessor :http_version
@@ -35,24 +35,22 @@ class Turf::Response
     data = [start_line, @raw_headers, ""].join("\r\n")
     data << @raw_content
     return data
-  end   
+  end
 
   def length
     @raw_content.length
   end
 
   def inspect
-    fields = [color_status(@status), Turf::human_readable_size(length)]
+    fields = [self.class.color_status(@status),
+              Turf::human_readable_size(length)]
     if has_header(headers, 'Content-Type')
       fields << get_header(headers, 'Content-Type')
     end
     return '<' + fields.join(" ") + '>'
   end
 
-
-  private
-
-  def color_status(status)
+  def self.color_status(status)
     return status.green if /\A2/ =~ status
     return status.yellow if /\A3/ =~ status
     return status.red if /\A[45]/ =~ status
