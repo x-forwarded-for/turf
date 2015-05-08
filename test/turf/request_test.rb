@@ -41,7 +41,7 @@ class RequestTest < MiniTest::Test
     io = StringIO.new "GET http://127.0.0.1:#{@ws_port}/ HTTP/1.1\r\n\r\n"
     r = Turf::Request.new io
     r.run
-    assert_equal(r.response.status, '200')
+    assert_equal('200', r.response.status)
     assert_includes(r.response.inspect, 'text/plain')
     assert_includes(r.response.to_s, 'Hello, world!')
   end
@@ -58,8 +58,8 @@ class RequestTest < MiniTest::Test
     io = StringIO.new "GET http://example.org/ HTTP/1.1\r\n" +
                        "X-Forwarded-For: 169.254.1.1\r\n\r\n"
     r = Turf::Request.new io
-    irs = r.inject_at("169.254.1.1", ["10.0.0.1", "192.168.1.1"])
-    assert_equal(irs.length, 2)
+    ira = r.inject_at("169.254.1.1", ["10.0.0.1", "192.168.1.1"])
+    assert_equal(ira.length, 2)
   end
 
   def test_inject_at_post
@@ -68,10 +68,9 @@ class RequestTest < MiniTest::Test
                       "Content-Type: application/x-www-form-urlencoded\r\n\r\n" +
                       "abcdefgh"
     r = Turf::Request.new io
-    irs = r.inject_at("defgh", ["ijk", "l"])
-    assert_equal(irs.length, 2)
-    assert_equal(irs[0].raw_content, "abcijk")
-    assert_equal(irs[1].raw_content, "abcl")
+    ira = r.inject_at("defgh", ["ijk", "l"])
+    assert_equal(ira.length, 2)
+    assert_equal(ira[0].raw_content, "abcijk")
+    assert_equal(ira[1].raw_content, "abcl")
   end
-
 end

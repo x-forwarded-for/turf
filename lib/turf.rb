@@ -4,6 +4,7 @@ module Turf
   require_relative 'turf/request'
   require_relative 'turf/response'
   require_relative 'turf/requestarray'
+  require_relative 'turf/requestenum'
   require_relative 'turf/history'
   require_relative 'turf/certificate_authority'
   require_relative 'turf/proxy'

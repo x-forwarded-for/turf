@@ -22,6 +22,9 @@ module DummyServer
       server.mount_proc '/' do |req, res|
         res["Content-Type"] = "text/plain"
         res.body = 'Hello, world!'
+        if req.body and req.body.include? "def12"
+          res.status = "500"
+        end
       end
       server.start
     }

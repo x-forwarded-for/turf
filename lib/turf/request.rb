@@ -113,17 +113,23 @@ class Turf::Request
                       'Content-Length'), 'Content-Length', l))
   end
 
-  def inject_at(ip, payloads)
+  def lazy_inject_at(ip, payloads)
     offset_begin = to_s.index(ip)
     offset_end = offset_begin + ip.length
-    rs = Turf::RequestArray.new payloads.collect { |p|
-      nc = to_s[0...offset_begin] + p + to_s[offset_end..-1]
-      nc = nc.gsub(/^Content-Length:.*\n/, "")
-      nr = Turf::Request.new nc, hostname: @hostname, port: @port, use_ssl: @use_ssl
-      nr.update_content_length
-      nr
-    }
-    return rs
+    return Turf::RequestEnumerator.new do |y|
+      loop do
+        p = payloads.next
+        nc = to_s[0...offset_begin] + p + to_s[offset_end..-1]
+        nc = nc.gsub(/^Content-Length:.*\n/, "")
+        nr = Turf::Request.new nc, hostname: @hostname, port: @port, use_ssl: @use_ssl
+        nr.update_content_length
+        y << nr
+      end
+    end
+  end
+
+  def inject_at(ip, payloads)
+    lazy_inject_at(ip, payloads.each).to_ra
   end
 
   private
