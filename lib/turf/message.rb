@@ -45,7 +45,7 @@ module Turf::Message
   end
 
   def add_header(headers, name, value)
-    headers + [name, value]
+    headers + [[name, value]]
   end
 
   def remove_header(headers, name)
