@@ -38,8 +38,7 @@ class RequestTest < MiniTest::Test
   end
 
   def test_run
-    io = StringIO.new "GET http://127.0.0.1:#{@ws_port}/ HTTP/1.1\r\n\r\n"
-    r = Turf::Request.new io
+    r = Turf::get("http://127.0.0.1:#{@ws_port}/")
     r.run
     assert_equal('200', r.response.status)
     assert_includes(r.response.inspect, 'text/plain')
@@ -73,4 +72,10 @@ class RequestTest < MiniTest::Test
     assert_equal(ira[0].raw_content, "abcijk")
     assert_equal(ira[1].raw_content, "abcl")
   end
+
+  def test_post_alias
+    r = Turf::post("http://127.0.0.1:#{@ws_port}/", {"test" => 123})
+    assert_equal(r.raw_content, "test=123")
+  end
+
 end

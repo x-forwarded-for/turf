@@ -15,8 +15,7 @@ User-Agent: Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 0.9; en-US)
 Accept-Encoding: gzip, deflate
 Content-Type: application/x-www-form-urlencoded
 
-%s
-}
+%s}
 
   module_function
 
