@@ -9,4 +9,5 @@ module Turf
   require_relative 'turf/certificate_authority'
   require_relative 'turf/proxy'
   require_relative 'turf/utils'
+  require_relative 'turf/aliases'
 end
