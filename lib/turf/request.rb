@@ -63,7 +63,7 @@ class Turf::Request
     super(@hostname, @port, @use_ssl, proxy: proxy)
   end
 
-  def run(sock = nil, chunk_cb: nil, proxy: nil)
+  def run(sock: nil, chunk_cb: nil, proxy: nil)
     sock ||= connect(proxy: proxy)
     Turf::History.instance << self
     if proxy and not @use_ssl
@@ -103,8 +103,12 @@ class Turf::Request
     '<' + [color_method(@method), @hostname, @url].join(" ") + '>'
   end
 
+  def same_connection?(r)
+    @hostname == r.hostname and @port == r.port and @use_ssl == use_ssl
+  end
+
   def *(n)
-    RequestArray.new (1..n).to_a.map { |x| self.clone }
+    Turf::RequestArray.new (1..n).to_a.map { |x| self.clone }
   end
 
   def update_content_length

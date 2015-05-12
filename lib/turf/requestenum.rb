@@ -2,11 +2,14 @@ class Turf::RequestEnumerator < Enumerator
 
   def run_while(&cond)
     done = Turf::RequestArray.new
-    loop do
-      r = self.next
-      done << r
-      r.run
-      break if cond and not cond.call(r)
+    begin
+      loop do
+        r = self.next
+        done << r
+        r.run
+        break if cond and not cond.call(r)
+      end
+    rescue Interrupt => e
     end
     done
   end
