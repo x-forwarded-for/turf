@@ -19,6 +19,7 @@ class Turf::RequestArray < Array
       tds << Thread::new(slice) { |s| run slice: s }
     }
     tds.each { |t| t.join }
+    nil
   end
 
   def done
