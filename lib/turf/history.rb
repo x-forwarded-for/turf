@@ -1,10 +1,7 @@
-require 'singleton'
-
 class Turf::History < Turf::RequestArray
 
-  include Singleton
-
-  def initialize
+  def initialize(*args)
+    super *args
     @lock = Mutex.new
   end
 
@@ -21,7 +18,7 @@ module Turf
   module_function
 
   def history
-    History.instance
+    Turf::Session.instance.history
   end
 
 end

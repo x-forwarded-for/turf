@@ -8,13 +8,14 @@ class HistoryTest < MiniTest::Test
     ws, ws_port = start_basic_webrick
     wait_until_online '127.0.0.1', ws_port
 
-    h_len = Turf::History.instance.length
+    h = Turf::Session.instance.history
+    h_len = h.length
     r = Turf::Request.new("GET / HTTP/1.1\r\n\r\n", hostname: "127.0.0.1",
                           port: ws_port, use_ssl: false)
     r.run
 
-    assert_equal(1, Turf::History.instance.length - h_len)
-    assert_includes(Turf::History.instance.inspect, "200")
+    assert_equal(1, h.length - h_len)
+    assert_includes(h.inspect, "200")
     ws.terminate
   end
 
