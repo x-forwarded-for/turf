@@ -80,7 +80,6 @@ class RequestTest < MiniTest::Test
 
   def test_post_alias
     r = Turf::multipart("http://127.0.0.1:#{@ws_port}/", "test" => 123, "file" => File.open("/etc/issue"))
-    puts r.to_s
     assert_includes(r.raw_content, "Content-Disposition: form-data; name=\"test\"\r\n\r\n123")
   end
 
