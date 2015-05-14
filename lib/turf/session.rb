@@ -50,12 +50,13 @@ module Turf
 
   module_function
 
-  def save
+  def save(name = nil)
+    Session.instance.name = name unless name.nil?
     Session.instance.save
   end
 
   # Ruby already uses 'load'
-  def use(name)
+  def restore(name)
     Session.instance.load name
   end
 
