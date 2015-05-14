@@ -6,12 +6,12 @@ class ProxyTest < MiniTest::Test
 
   def start_forward_proxy
     port = rand(1024..65535)
-    p = Thread.new {
-      rs = Turf::proxy :port => port, :rules => [
-        [ proc {|x| x.method == "CONNECT"}, :mitm_ssl],
-        [ proc {|x| true}, :forward ]
-      ]
-    }
+    p = Thread.new do
+      rs = Turf::proxy(port: port) { |r|
+        next :mitm_ssl if r.method == "CONNECT"
+        next :forward
+      }
+    end
     return p, port
   end
 

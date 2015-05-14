@@ -37,9 +37,7 @@ module Turf
     end
 
     def apply_rules
-      @proxy.rules.each do |rule, action|
-         return action if rule.call(@request)
-      end
+      @proxy.rules.call(@request)
     end
 
     def is_connect?
@@ -150,10 +148,10 @@ module Turf
     attr_accessor :ca
     attr_accessor :continue
 
-    def initialize(hostname: nil, port: nil, rules: nil)
+    def initialize(hostname: nil, port: nil, &block)
       @hostname = hostname || "127.0.0.1"
       @port = port || 8080
-      @rules = rules
+      @rules = block
       @requests = RequestArray.new
       @requests_lock = Mutex.new
       @ca = CertificateAuthority.new
@@ -191,8 +189,8 @@ module Turf
 
   module_function
 
-  def proxy(*args)
-    p = Proxy.new *args
+  def proxy(hostname: nil, port: nil, &block)
+    p = Proxy.new :hostname => hostname, :port => port, &block
     p.start_sync
     return p.requests
   end
