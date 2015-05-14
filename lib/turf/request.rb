@@ -65,7 +65,7 @@ class Turf::Request
 
   def run(sock: nil, chunk_cb: nil, proxy: nil)
     sock ||= connect(proxy: proxy)
-    Turf::History.instance << self
+    Turf::Session.instance.history << self
     if proxy and not @use_ssl
       p = URI(proxy)
       if p.scheme =~ /\Ahttps?\z/
