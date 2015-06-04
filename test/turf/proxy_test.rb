@@ -2,19 +2,50 @@ require_relative '../test_helper'
 
 class ProxyTest < MiniTest::Test
 
-  def start_forward_proxy
+  PROXY_RUNNING = /\ARunning on (.*):(?<proxy_port>[0-9]+)\z/
+
+  class DummyUI
+    attr_accessor :proxy_thread
+    def info(s)
+    end
+  end
+
+  def setup
+    @ui = DummyUI.new
+    @m = Mutex.new
+    @stopped = ConditionVariable.new
+  end
+
+  def start_proxy
     port = rand(1024..65535)
-    p = Thread.new do
-      rs = Turf::proxy(port: port) { |r|
-        next :mitm_ssl if r.method == "CONNECT"
-        next :forward
+    t = Thread.new do
+      @m.synchronize {
+        @p = Turf::Proxy.new(port: port, ui: @ui)
+        @p.start_sync
+        @stopped.signal
       }
     end
-    return p, port
+    return t, port
+  end
+
+  def test_irb_stop_after_start
+    def @ui.info(message)
+      @proxy_thread.raise IRB::Abort if message =~ PROXY_RUNNING
+    end
+
+    @m.synchronize {
+      @ui.proxy_thread, port = start_proxy
+      @stopped.wait(@m)
+    }
+    assert_empty(@p.requests)
   end
 
   def test_new
-    p, p_port = start_forward_proxy
+    def @ui.ask
+      "f"
+    end
+
+    p, p_port = start_proxy
     ws, ws_port = start_basic_webrick
 
     r = Turf::Request.new("GET / HTTP/1.1\r\n\r\n", hostname: "127.0.0.1",
@@ -26,7 +57,11 @@ class ProxyTest < MiniTest::Test
   end
 
   def test_mitm_ssl
-    p, p_port = start_forward_proxy
+    def @ui.ask
+      ""
+    end
+
+    p, p_port = start_proxy
     ws, ws_port = start_tls_webrick
 
     r = Turf::Request.new("GET / HTTP/1.1\r\n\r\n", hostname: "127.0.0.1",
