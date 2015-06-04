@@ -1,12 +1,9 @@
 require_relative '../test_helper'
-require_relative 'dummy_server'
 
 class RequestTest < MiniTest::Test
-  include DummyServer
 
   def setup
     @ws, @ws_port = start_basic_webrick
-    wait_until_online "127.0.0.1", @ws_port
   end
 
   def teardown

@@ -1,8 +1,6 @@
 require_relative '../test_helper'
-require_relative 'dummy_server'
 
 class RequestEnumTest < MiniTest::Test
-  include DummyServer
 
   def setup
     @ws, @ws_port = start_basic_webrick
@@ -10,7 +8,6 @@ class RequestEnumTest < MiniTest::Test
                   "Content-Length: 8\r\n" +
                   "Content-Type: application/x-www-form-urlencoded\r\n\r\n" +
                   "abcdefgh"
-    wait_until_online "127.0.0.1", @ws_port
   end
 
   def teardown

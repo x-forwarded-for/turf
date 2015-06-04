@@ -1,12 +1,9 @@
 require_relative '../test_helper'
-require_relative 'dummy_server'
 
 class HistoryTest < MiniTest::Test
-  include DummyServer
 
   def test_new
     ws, ws_port = start_basic_webrick
-    wait_until_online '127.0.0.1', ws_port
 
     h = Turf::Session.instance.history
     h_len = h.length
