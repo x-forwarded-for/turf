@@ -1,36 +1,27 @@
 require 'minitest/autorun'
 require 'minitest/hell'
 
-require_relative '../lib/turf'
-
+require 'thread'
 require 'webrick'
 require 'webrick/https'
 
-def wait_until_online(host, port)
-  loop do
-    begin
-      s = TCPSocket.new host, port
-      s.close
-      break
-    rescue Errno::ECONNREFUSED
-    end
-  end
-end
+require_relative '../lib/turf'
 
 def start_basic_webrick
-  #FIXME - need to close these (or start using condvars)
-  reader, writer = IO.pipe
-
+  m = Mutex.new
+  c = ConditionVariable.new
   port = rand(1025..65535)
+
   ws = Thread.new {
+    abort_on_exception = true
     server = WEBrick::HTTPServer.new(
       Port: port,
       AccessLog: [],
       Logger: WEBrick::Log::new("/dev/null", 7),
       BindAddress: '127.0.0.1',
-      StartCallback: Proc.new {
-        writer.write("1")
-      }
+      StartCallback: Proc.new do
+        m.synchronize { c.signal }
+      end
     )
     server.mount_proc '/' do |req, res|
       res["Content-Type"] = "text/plain"
@@ -41,15 +32,17 @@ def start_basic_webrick
     end
     server.start
   }
-  reader.read(1)
+  m.synchronize {
+    c.wait(m)
+  }
   return ws, port
 end
 
 def start_tls_webrick
-  #FIXME - need to close these (or start using condvars)
-  reader, writer = IO.pipe
-
+  m = Mutex.new
+  c = ConditionVariable.new
   port = rand(1025..65535)
+
   ws = Thread.new {
     cert_name = [ %w[CN localhost], ]
     server = WEBrick::HTTPServer.new(
@@ -59,15 +52,17 @@ def start_tls_webrick
       SSLEnable: true,
       SSLCertName: cert_name,
       BindAddress: '127.0.0.1',
-      StartCallback: Proc.new {
-        writer.write("1")
-      }
+      StartCallback: Proc.new do
+        m.synchronize { c.signal }
+      end
     )
     server.mount_proc '/' do |req, res|
       res.body = 'Hello, world!'
     end
     server.start
   }
-  reader.read(1)
+  m.synchronize {
+    c.wait(m)
+  }
   return ws, port
 end

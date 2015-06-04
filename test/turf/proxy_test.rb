@@ -16,7 +16,6 @@ class ProxyTest < MiniTest::Test
   def test_new
     p, p_port = start_forward_proxy
     ws, ws_port = start_basic_webrick
-    wait_until_online '127.0.0.1', p_port
 
     r = Turf::Request.new("GET / HTTP/1.1\r\n\r\n", hostname: "127.0.0.1",
                           port: ws_port, use_ssl: false)
@@ -29,7 +28,6 @@ class ProxyTest < MiniTest::Test
   def test_mitm_ssl
     p, p_port = start_forward_proxy
     ws, ws_port = start_tls_webrick
-    wait_until_online '127.0.0.1', p_port
 
     r = Turf::Request.new("GET / HTTP/1.1\r\n\r\n", hostname: "127.0.0.1",
                           port: ws_port, use_ssl: true)
