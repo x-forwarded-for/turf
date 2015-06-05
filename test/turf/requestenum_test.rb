@@ -30,7 +30,7 @@ class RequestEnumTest < MiniTest::Test
     assert_equal(12, ra.length)
   end
 
-  def test_run_while
+  def test_run_until
     r = Turf::Request.new StringIO.new(@default_io)
     re = r.lazy_inject_at("gh", (1..Float::INFINITY).lazy.map(&:to_s))
     ra = re.run_until { |r| r.response.status != "200" }
