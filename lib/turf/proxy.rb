@@ -121,11 +121,11 @@ module Turf
       am = is_connect? ? action_map_https : action_map_http
       loop do
         if is_connect?
-          puts '[m]itm, (c)ontinue, (d)rop, (v)iew, (h)eaders ?'
+          question = '[m]itm, (c)ontinue, (d)rop, (v)iew, (h)eaders ?'
         else
-          puts '[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ?'
+          question = '[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ?'
         end
-        a = @proxy.ui.ask
+        a = @proxy.ui.ask(question)
         a = a.empty? ? (is_connect? ? "m" : "f") : a
         if am.include?(a)
           return am[a]
@@ -140,12 +140,21 @@ module Turf
 
   class ConsoleUI
 
-    def info(s)
-      puts s
+    def initialize
+      @lock = Mutex.new
     end
 
-    def ask
-      gets.chomp
+    def info(s)
+      @lock.synchronize {
+        puts s
+      }
+    end
+
+    def ask(question)
+      @lock.synchronize {
+        puts question
+        gets.chomp
+      }
     end
   end
 

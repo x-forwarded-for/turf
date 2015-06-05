@@ -8,6 +8,8 @@ class ProxyTest < MiniTest::Test
     attr_accessor :proxy_thread
     def info(s)
     end
+    def ask(q)
+    end
   end
 
   def setup
@@ -41,7 +43,7 @@ class ProxyTest < MiniTest::Test
   end
 
   def test_new
-    def @ui.ask
+    def @ui.ask(q)
       "f"
     end
 
@@ -57,7 +59,7 @@ class ProxyTest < MiniTest::Test
   end
 
   def test_mitm_ssl
-    def @ui.ask
+    def @ui.ask(q)
       ""
     end
 
