@@ -55,9 +55,9 @@ module Turf
     def perform_action
       case @action
       when :view
-        puts @request.to_s
+        @proxy.ui.info @request.to_s
       when :view_headers
-        puts @request.headers.to_s
+        @proxy.ui.info @request.headers.to_s
       when :mitm_ssl
         mitm_ssl(@request.hostname, @request.port)
         @action = request_prologue
@@ -65,7 +65,7 @@ module Turf
         @proxy.continue = true
         @action = default_action
         perform_action
-        puts @request.inspect
+        @proxy.ui.info @request.inspect
       end
     end
 
@@ -80,7 +80,7 @@ module Turf
       read_request
       request_prologue
       loop do
-        puts @request.inspect
+        @proxy.ui.info @request.inspect
         unless @action
           if @proxy.continue
             @action = default_action
@@ -100,7 +100,7 @@ module Turf
 
       @request.run
 
-      puts @request.response.inspect
+      @proxy.ui.info @request.response.inspect
       interact_response
       write_response
     end
