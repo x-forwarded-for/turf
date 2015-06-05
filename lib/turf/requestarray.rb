@@ -22,8 +22,16 @@ class Turf::RequestArray < Array
     nil
   end
 
+  def select(&block)
+    if block_given?
+      Turf::RequestArray.new(super.select &block)
+    else
+      super
+    end
+  end
+
   def done
-    Turf::RequestArray.new(select { |r| not r.response.nil? })
+    select { |r| not r.response.nil? }
   end
 
   def inspect
