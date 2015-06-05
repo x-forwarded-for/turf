@@ -30,6 +30,10 @@ class Turf::Response
     parse_headers(@raw_headers)
   end
 
+  def content
+    decode_content(headers, @raw_content)
+  end
+
   def to_s
     start_line = [@http_version, @status, @reason].join(" ")
     data = [start_line, @raw_headers, ""].join("\r\n")

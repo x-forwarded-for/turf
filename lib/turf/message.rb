@@ -1,4 +1,5 @@
 require 'openssl'
+require "zlib"
 
 module Turf::Message
 
@@ -95,6 +96,32 @@ module Turf::Message
       end
     end
     return b
+  end
+
+  def unchunk_content(raw_content)
+    content_io = StringIO.new raw_content
+    buffer = ""
+    loop do
+      s = content_io.readline.to_i(16)
+      return buffer if s == 0
+      buffer << read_exactly(content_io, s)
+    end
+  end
+
+  def decode_content(headers, raw_content)
+    if has_header(headers, "Transfer-Encoding", "chunked")
+      c = unchunk_content(raw_content)
+    else
+      c = raw_content
+    end
+    if has_header(headers, "Content-Encoding", "gzip")
+      i = Zlib::Inflate.new(32 + Zlib::MAX_WBITS)
+      c = i.inflate(c)
+    elsif has_header(headers, "Content-Encoding", "deflate")
+      i = Zlib::Inflate.new(-Zlib::MAX_WBITS)
+      c = i.inflate(c)
+    end
+    return c
   end
 
   def wrap_socket(sock)
