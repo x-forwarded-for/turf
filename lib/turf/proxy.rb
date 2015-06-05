@@ -1,4 +1,5 @@
 require 'irb'
+require 'monitor'
 require 'socket'
 
 module Turf
@@ -141,18 +142,19 @@ module Turf
   class ConsoleUI
 
     def initialize
-      @lock = Mutex.new
+      @lock = Monitor.new
     end
 
-    def info(s)
+    def info(s, from: nil)
       @lock.synchronize {
-        puts s
+        from ||= Thread.current["id"]
+        puts "[#{from}] #{s}"
       }
     end
 
     def ask(question)
       @lock.synchronize {
-        puts question
+        info question
         gets.chomp
       }
     end
@@ -185,26 +187,29 @@ module Turf
         server = TCPServer.new @hostname, @port
         server.setsockopt(:SOCKET, :REUSEADDR, true)
         threads = Array.new
-        @ui.info "Running on #{@hostname}:#{@port}"
+        @ui.info "Running on #{@hostname}:#{@port}", from: "main"
+        id = 0
         loop do
           begin
             threads << Thread.new(server.accept) do |client|
               begin
+                Thread.current["id"] = id
                 ProxyThread.new(self, client)
               rescue Exception => e
-                puts "Proxy threads died with:"
-                puts e
+                @ui.info "Proxy threads died with:", from: "main"
+                @ui.info e, from: "main"
               end
             end
             rescue IRB::Abort
               if @continue
                 @continue = false
-                puts "Manual mode"
-                puts "Use Ctrl-C one more time to quit"
+                @ui.info "Manual mode", from: "main"
+                @ui.info "Use Ctrl-C one more time to quit", from: "main"
               else
                 raise
               end
           end
+          id += 1
         end
       rescue IRB::Abort # IRB translation for SIGINT
         server.shutdown

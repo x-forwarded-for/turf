@@ -6,7 +6,8 @@ class ProxyTest < MiniTest::Test
 
   class DummyUI
     attr_accessor :proxy_thread
-    def info(s)
+    attr_accessor :message
+    def info(s, from: nil)
     end
     def ask(q)
     end
@@ -31,14 +32,17 @@ class ProxyTest < MiniTest::Test
   end
 
   def test_irb_stop_after_start
-    def @ui.info(message)
-      @proxy_thread.raise IRB::Abort if message =~ PROXY_RUNNING
+
+    def @ui.info(message, from: nil)
+      @message = message
+      @proxy_thread.raise IRB::Abort
     end
 
     @m.synchronize {
       @ui.proxy_thread, port = start_proxy
       @stopped.wait(@m)
     }
+    assert_match(PROXY_RUNNING, @ui.message)
     assert_empty(@p.requests)
   end
 
