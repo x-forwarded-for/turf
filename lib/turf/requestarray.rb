@@ -23,7 +23,7 @@ class Turf::RequestArray < Array
   end
 
   def done
-    select { |r| not r.response.nil? }
+    Turf::RequestArray.new(select { |r| not r.response.nil? })
   end
 
   def inspect
