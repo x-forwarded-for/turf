@@ -180,7 +180,12 @@ module Turf
         loop do
           begin
             threads << Thread.new(server.accept) do |client|
-              ProxyThread.new(self, client)
+              begin
+                ProxyThread.new(self, client)
+              rescue Exception => e
+                puts "Proxy threads died with:"
+                puts e
+              end
             end
             rescue IRB::Abort
               if @continue
