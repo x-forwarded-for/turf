@@ -196,8 +196,8 @@ module Turf
                 Thread.current["id"] = id
                 ProxyThread.new(self, client)
               rescue Exception => e
-                @ui.info "Proxy threads died with:", from: "main"
-                @ui.info e, from: "main"
+                @ui.info "Proxy threads died with:"
+                @ui.info e
               end
             end
             rescue IRB::Abort
