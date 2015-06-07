@@ -34,7 +34,7 @@ class Turf::Request
       @url = url
     else
       p_url = URI(url)
-      raise Exception.new("No scheme!") if not p_url.scheme
+      raise Exception.new("No scheme: #{p_url}") if not p_url.scheme
       @url = URI::Generic.new(*([nil] * 4 + URI.split(url)[4..-1])).to_s
       @hostname = p_url.host
       if p_url.scheme == 'https'
