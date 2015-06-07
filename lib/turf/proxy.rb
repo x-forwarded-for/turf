@@ -107,7 +107,12 @@ module Turf
     end
 
     def read_request
-      @request = Request.new client
+      if @request and @request.use_ssl
+        @request = Request.new client, :hostname => @request.hostname,
+                          :port => @request.port, :use_ssl => true
+      else
+        @request = Request.new client
+      end
     end
 
     def write_response
