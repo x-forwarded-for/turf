@@ -1,6 +1,7 @@
 require 'irb'
 require 'monitor'
 require 'socket'
+require 'readline'
 
 module Turf
 
@@ -20,6 +21,12 @@ module Turf
           handle_one_request
         rescue EOFError
           @close_connection = true
+        rescue OpenSSL::SSL::SSLError => e
+          @proxy.ui.error e.inspect
+          if e.to_s.include? "alert unknown ca"
+            @proxy.ui.error "The certificate has been rejected by your client."
+          end
+          break
         end
         break if @close_connection
       end
@@ -127,9 +134,9 @@ module Turf
       am = is_connect? ? action_map_https : action_map_http
       loop do
         if is_connect?
-          question = '[m]itm, (c)ontinue, (d)rop, (v)iew, (h)eaders ?'
+          question = '[m]itm, (c)ontinue, (d)rop, (v)iew, (h)eaders ? '
         else
-          question = '[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ?'
+          question = '[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ? '
         end
         a = @proxy.ui.ask(question)
         a = a.empty? ? (is_connect? ? "m" : "f") : a
@@ -152,17 +159,29 @@ module Turf
 
     def info(s, from: nil)
       @lock.synchronize {
-        from ||= Thread.current["id"]
-        puts "[#{from}] #{s}"
+        puts with_from(s, from: from)
       }
     end
 
     def ask(question)
       @lock.synchronize {
-        info question
-        gets.chomp
+        Readline.readline(with_from(question), false).squeeze(" ").strip
       }
     end
+
+    def error(s, from: nil)
+      @lock.synchronize {
+        puts with_from(s.red, from: from)
+      }
+    end
+
+    private
+
+    def with_from(s, from: nil)
+      from ||= Thread.current["id"]
+      "[#{from}] #{s}"
+    end
+
   end
 
   class Proxy
