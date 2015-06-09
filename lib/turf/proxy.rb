@@ -221,6 +221,7 @@ module Turf
                 ProxyThread.new(self, client)
               rescue Exception => e
                 @ui.info "Proxy threads died with:"
+                @ui.info e.inspect
                 @ui.info e
               end
             end
