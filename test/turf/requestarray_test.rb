@@ -10,6 +10,13 @@ class RequestArrayTest < MiniTest::Test
     @ws.terminate
   end
 
+  def test_to_s
+    ra = Turf::get("http://127.0.0.1:#{@ws_port}/") * 10
+    puts ra
+    ra.run
+    puts ra
+  end
+
   def test_parallel
     io = StringIO.new "GET / HTTP/1.1\r\n\r\n"
     r = Turf::Request.new io, hostname: "127.0.0.1", port: @ws_port

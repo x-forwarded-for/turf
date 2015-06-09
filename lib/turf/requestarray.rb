@@ -52,4 +52,25 @@ class Turf::RequestArray
     return "<#{length} | #{st} | #{hostnames}>"
   end
 
+  def to_s
+    columns = [ :method,
+                {name: "Hostname",
+                       cb: Proc.new { |x| x.hostname },
+                       weight: 0.1,
+                       adjust_cb: :character_truncate,
+                       adjust_args: "." },
+                {name: "Path",
+                       cb: Proc.new { |x| x.path },
+                       weight: 0.2,
+                       adjust_cb: :character_rtruncate,
+                       adjust_args: "/" },
+                {name: "Length",
+                       cb: Proc.new { |x|
+                           x.response.nil? ? "-" : Turf.human_readable_size(x.response.length)
+                       }},
+                {name: "Status", cb: Proc.new { |x| x.response.nil? ? "-" : x.response.status}}
+              ]
+    Turf::tp self, columns
+  end
+
 end
