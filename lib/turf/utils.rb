@@ -1,8 +1,6 @@
 module Turf
 
-  module_function
-
-  def human_readable_size(s)
+  def Turf.human_readable_size(s)
     units = ["", "k", "M"]
     size, unit = units.reduce(s.to_f) do |(fsize, _), utype|
       fsize > 500 ? [fsize / 1000, utype] : (break [fsize, utype])
