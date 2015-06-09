@@ -1,9 +1,17 @@
-class Turf::RequestArray < Array
+require 'forwardable'
+
+class Turf::RequestArray
+  extend Forwardable
+  def_delegators :@array, :[], :<<, :collect, :each, :empty?, :length
+
+  def initialize(array = [])
+    @array = array
+  end
 
   def run(slice: nil)
     conn = nil
     prev = nil
-    slice ||= self
+    slice ||= @array
     slice.each do |r|
       if not conn or not r.same_connection? prev
         conn = r.connect
@@ -15,7 +23,7 @@ class Turf::RequestArray < Array
 
   def parallel(threads: 4)
     tds = []
-    group_by.with_index { |o, i| i % threads }.each_value { |slice|
+    @array.group_by.with_index { |o, i| i % threads }.each_value { |slice|
       tds << Thread::new(slice) { |s| run slice: s }
     }
     tds.each { |t| t.join }
@@ -23,11 +31,7 @@ class Turf::RequestArray < Array
   end
 
   def select(&block)
-    if block_given?
-      Turf::RequestArray.new(super.select &block)
-    else
-      super
-    end
+    Turf::RequestArray.new(@array.select &block)
   end
 
   def done
