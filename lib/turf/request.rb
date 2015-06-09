@@ -55,6 +55,10 @@ class Turf::Request
     @response = nil
   end
 
+  def path
+    URI(@url).path
+  end
+
   def headers
       parse_headers(@raw_headers)
   end
