@@ -3,7 +3,7 @@ require_relative '../test_helper'
 class UtilsTest < MiniTest::Test
 
   def test_tableprinter
-    ra = Turf::get("http://this.is.a.very.long.domain.name.org/and/a/very/long/path/that/will/overflow/the/terminal/width/for/sure.html") * 10
+    ra = Turf::get("http://this.is.a.very.long.domain.name.org/and/a/very/long/path/that/will/overflow/the/terminal/width/for/sure.html") * 4
     fields = [{ name: "Hostname",
                 cb: Proc.new { |x| x.hostname},
                 weight: 0.2,
@@ -22,7 +22,9 @@ class UtilsTest < MiniTest::Test
              }
              ]
     tp = Turf::TablePrinter.new(ra, fields, width: 80)
-    puts tp.render
+    tos = tp.render
+    assert_includes(tos, "….is.a.very.long.domain.name.org")
+    assert_includes(tos, "/and/a/very/long/path/that/will/…")
   end
 
 end
