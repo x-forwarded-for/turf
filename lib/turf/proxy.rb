@@ -247,9 +247,18 @@ module Turf
 
   module_function
 
-  def proxy(hostname: nil, port: nil, &block)
-    p = Proxy.new :hostname => hostname, :port => port, &block
-    p.start_sync
+  def proxy(args = {})
+    p = Proxy.new args
+    p.bind
+    p.serve
+    return p.requests
+  end
+
+  def forwarder(args = {})
+    p = Proxy.new args
+    p.continue = true
+    p.bind
+    p.serve
     return p.requests
   end
 
