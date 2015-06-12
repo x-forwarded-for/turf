@@ -16,6 +16,7 @@ class ProxyTest < MiniTest::Test
   def setup
     @ui = DummyUI.new
     @m = Mutex.new
+    @started = ConditionVariable.new
     @stopped = ConditionVariable.new
   end
 
@@ -24,9 +25,11 @@ class ProxyTest < MiniTest::Test
     t = Thread.new do
       @m.synchronize {
         @p = Turf::Proxy.new(port: port, ui: @ui)
-        @p.start_sync
-        @stopped.signal
+        @p.bind
+        @started.signal
       }
+      @p.serve
+      @stopped.signal
     end
     return t, port
   end
@@ -51,15 +54,19 @@ class ProxyTest < MiniTest::Test
       "f"
     end
 
-    p, p_port = start_proxy
+    p = nil
+    p_port = nil
+    @m.synchronize {
+      p, p_port = start_proxy
+      @started.wait(@m)
+    }
     ws, ws_port = start_basic_webrick
-
-    r = Turf::Request.new("GET / HTTP/1.1\r\n\r\n", hostname: "127.0.0.1",
-                          port: ws_port, use_ssl: false)
+    r = Turf::get("http://127.0.0.1:#{ws_port}/")
     r.run proxy: "http://127.0.0.1:#{p_port}"
 
     p.raise IRB::Abort
     ws.terminate
+    assert_equal(1, @p.requests.length)
   end
 
   def test_mitm_ssl
@@ -67,15 +74,20 @@ class ProxyTest < MiniTest::Test
       ""
     end
 
-    p, p_port = start_proxy
+    p = nil
+    p_port = nil
+    @m.synchronize {
+      p, p_port = start_proxy
+      @started.wait(@m)
+    }
     ws, ws_port = start_tls_webrick
 
-    r = Turf::Request.new("GET / HTTP/1.1\r\n\r\n", hostname: "127.0.0.1",
-                          port: ws_port, use_ssl: true)
+    r = Turf::get("https://127.0.0.1:#{ws_port}/")
     r.run proxy: "http://127.0.0.1:#{p_port}"
 
     p.raise IRB::Abort
     ws.terminate
+    assert_equal(2, @p.requests.length)
   end
 
 end
