@@ -104,7 +104,7 @@ class Turf::Request
   end
 
   def inspect
-    '<' + [color_method(@method), @hostname, @url].join(" ") + '>'
+    '<' + [color_method, @hostname, @url].join(" ") + '>'
   end
 
   def same_connection?(r)
@@ -140,9 +140,11 @@ class Turf::Request
     lazy_inject_at(ip, payloads.each).to_ra
   end
 
-  private
+  def color_method
+    self.class.color_method(@method)
+  end
 
-  def color_method(method)
+  def self.color_method(method)
     return method.blue if ["GET"].include? method
     return method.green if ["POST", "PUT"].include? method
     return method.yellow if ["CONNECT"].include? method
