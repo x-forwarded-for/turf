@@ -186,8 +186,6 @@ module Turf
 
   class Proxy
 
-    attr_accessor :hostname
-    attr_accessor :port
     attr_accessor :rules
     attr_accessor :requests
     attr_accessor :requests_lock
