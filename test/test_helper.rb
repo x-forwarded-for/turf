@@ -59,11 +59,7 @@ def start_tls_webrick
           SSLCertName: cert_name,
           BindAddress: '127.0.0.1',
           StartCallback: Proc.new do
-            begin
-              m.synchronize { c.signal }
-            rescue Exception => e
-                puts e
-            end
+            m.synchronize { c.signal }
           end
         )
         server.mount_proc '/' do |req, res|
