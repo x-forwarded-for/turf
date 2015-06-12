@@ -38,6 +38,10 @@ class Turf::RequestArray
     select { |r| not r.response.nil? }
   end
 
+  def to_a
+    @array
+  end
+
   def inspect
     status = Hash.new 0
     each { |r|
