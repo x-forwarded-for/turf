@@ -193,10 +193,10 @@ module Turf
     attr_accessor :continue
     attr_accessor :ui
 
-    def initialize(hostname: nil, port: nil, ui: nil, &block)
+    def initialize(hostname: nil, port: nil, ui: nil)
       @hostname = hostname || "127.0.0.1"
       @port = port || 8080
-      @rules = block
+      @rules = nil
       @requests = RequestArray.new
       @requests_lock = Mutex.new
       @ca = CertificateAuthority.new
@@ -204,16 +204,19 @@ module Turf
       @ui = ui || ConsoleUI.new
     end
 
-    def start_sync
+    def bind
+      @server = TCPServer.new @hostname, @port
+      @server.setsockopt(:SOCKET, :REUSEADDR, true)
+    end
+
+    def serve
+      threads = Array.new
       begin
-        server = TCPServer.new @hostname, @port
-        server.setsockopt(:SOCKET, :REUSEADDR, true)
-        threads = Array.new
         @ui.info "Running on #{@hostname}:#{@port}", from: "main"
         id = 0
         loop do
           begin
-            threads << Thread.new(server.accept) do |client|
+            threads << Thread.new(@server.accept) do |client|
               begin
                 Thread.current["id"] = id
                 ProxyThread.new(self, client)
@@ -235,7 +238,7 @@ module Turf
           id += 1
         end
       rescue IRB::Abort # IRB translation for SIGINT
-        server.shutdown
+        @server.shutdown
         threads.each { |t| t.terminate }
       end
     end
