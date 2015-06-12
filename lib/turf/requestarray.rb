@@ -48,7 +48,7 @@ class Turf::RequestArray
       if r.response
         status[r.response.status] += 1
       else
-        status["unkown"] += 1
+        status["unknown"] += 1
       end
     }
     st = status.to_a.collect{ |k,v| "#{Turf::Response.color_status(k)}:#{v}" }.join(" ")
