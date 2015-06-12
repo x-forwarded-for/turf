@@ -10,6 +10,7 @@ class ProxyTest < MiniTest::Test
     def info(s, from: nil)
     end
     def ask(q)
+      ""
     end
   end
 
@@ -17,21 +18,27 @@ class ProxyTest < MiniTest::Test
     @ui = DummyUI.new
     @m = Mutex.new
     @started = ConditionVariable.new
-    @stopped = ConditionVariable.new
   end
 
   def start_proxy
     port = rand(1024..65535)
-    t = Thread.new do
-      @m.synchronize {
-        @p = Turf::Proxy.new(port: port, ui: @ui)
-        @p.bind
-        @started.signal
-      }
-      @p.serve
-      @stopped.signal
-    end
-    return t, port
+    @m.synchronize {
+      t = Thread.new do
+        begin
+          @m.synchronize {
+            @p = Turf::Proxy.new(port: port, ui: @ui)
+            @p.bind
+            @started.signal
+          }
+          @p.serve
+        rescue Errno::EADDRINUSE => e
+          puts "Unlucky run :("
+        end
+      end
+      @ui.proxy_thread = t
+      @started.wait(@m)
+      return t, port
+    }
   end
 
   def test_irb_stop_after_start
@@ -41,10 +48,8 @@ class ProxyTest < MiniTest::Test
       @proxy_thread.raise IRB::Abort
     end
 
-    @m.synchronize {
-      @ui.proxy_thread, port = start_proxy
-      @stopped.wait(@m)
-    }
+    @ui.proxy_thread, port = start_proxy
+    @ui.proxy_thread.join
     assert_match(PROXY_RUNNING, @ui.message)
     assert_empty(@p.requests)
   end
@@ -54,12 +59,7 @@ class ProxyTest < MiniTest::Test
       "f"
     end
 
-    p = nil
-    p_port = nil
-    @m.synchronize {
-      p, p_port = start_proxy
-      @started.wait(@m)
-    }
+    p, p_port = start_proxy
     ws, ws_port = start_basic_webrick
     r = Turf::get("http://127.0.0.1:#{ws_port}/")
     r.run proxy: "http://127.0.0.1:#{p_port}"
@@ -70,16 +70,7 @@ class ProxyTest < MiniTest::Test
   end
 
   def test_mitm_ssl
-    def @ui.ask(q)
-      ""
-    end
-
-    p = nil
-    p_port = nil
-    @m.synchronize {
-      p, p_port = start_proxy
-      @started.wait(@m)
-    }
+    p, p_port = start_proxy
     ws, ws_port = start_tls_webrick
 
     r = Turf::get("https://127.0.0.1:#{ws_port}/")
