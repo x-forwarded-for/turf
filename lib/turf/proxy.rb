@@ -216,7 +216,7 @@ module Turf
         id = 0
         loop do
           begin
-            threads << Thread.new(@server.accept) do |client|
+            threads << Thread.new(@server.accept, id) do |client, id|
               begin
                 Thread.current["id"] = id
                 ProxyThread.new(self, client)
