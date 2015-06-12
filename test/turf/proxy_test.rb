@@ -5,13 +5,17 @@ class ProxyTest < MiniTest::Test
   PROXY_RUNNING = /\ARunning on (.*):(?<proxy_port>[0-9]+)\z/
 
   class DummyUI
+
     attr_accessor :proxy_thread
     attr_accessor :message
+
     def info(s, from: nil)
     end
+
     def ask(q)
       ""
     end
+
   end
 
   def setup
@@ -42,7 +46,6 @@ class ProxyTest < MiniTest::Test
   end
 
   def test_irb_stop_after_start
-
     def @ui.info(message, from: nil)
       @message = message
       @proxy_thread.raise IRB::Abort
@@ -54,7 +57,7 @@ class ProxyTest < MiniTest::Test
     assert_empty(@p.requests)
   end
 
-  def test_new
+  def test_one_request
     def @ui.ask(q)
       "f"
     end
@@ -65,6 +68,7 @@ class ProxyTest < MiniTest::Test
     r.run proxy: "http://127.0.0.1:#{p_port}"
 
     p.raise IRB::Abort
+    p.join
     ws.terminate
     assert_equal(1, @p.requests.length)
   end
@@ -77,8 +81,53 @@ class ProxyTest < MiniTest::Test
     r.run proxy: "http://127.0.0.1:#{p_port}"
 
     p.raise IRB::Abort
+    p.join
     ws.terminate
     assert_equal(2, @p.requests.length)
   end
 
+  def test_continue
+    def @ui.ask(q)
+      "c"
+    end
+
+    def @ui.info(s, from: nil)
+      # Need to raise second abort once the first one
+      # has been processed.
+      if s.include?("Use Ctrl-C one more time to quit")
+        @proxy_thread.raise IRB::Abort
+      end
+    end
+
+    p, p_port = start_proxy
+    ws, ws_port = start_basic_webrick
+    r = Turf::get("http://127.0.0.1:#{ws_port}/")
+    r.run proxy: "http://127.0.0.1:#{p_port}"
+    assert_equal("200", r.response.status)
+
+    p.raise IRB::Abort
+    p.join
+    ws.terminate
+    assert_equal(1, @p.requests.length)
+  end
+
+  def test_drop
+    def @ui.ask(q)
+      "d"
+    end
+
+    p, p_port = start_proxy
+    ws, ws_port = start_basic_webrick
+    r = Turf::get("http://127.0.0.1:#{ws_port}/")
+
+    assert_raises(EOFError) {
+      r.run proxy: "http://127.0.0.1:#{p_port}"
+    }
+
+    p.raise IRB::Abort
+    p.join
+    ws.terminate
+    assert_equal(1, @p.requests.length)
+    assert_nil(@p.requests[0].response)
+  end
 end
