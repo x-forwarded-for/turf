@@ -57,7 +57,9 @@ class Turf::RequestArray
   end
 
   def to_s
-    columns = [ :method,
+    columns = [ {name: "Method",
+                       cb: Proc.new { |x| x.color_method }
+                       },
                 {name: "Hostname",
                        cb: Proc.new { |x| x.hostname },
                        weight: 0.1,
@@ -68,11 +70,12 @@ class Turf::RequestArray
                        weight: 0.2,
                        adjust_cb: :character_rtruncate,
                        adjust_args: "/" },
-                {name: "Length",
-                       cb: Proc.new { |x|
-                           x.response.nil? ? "-" : Turf.human_readable_size(x.response.length)
+                {name: "Length", cb: Proc.new { |x|
+                       x.response.nil? ? "-" : Turf.human_readable_size(x.response.length)
                        }},
-                {name: "Status", cb: Proc.new { |x| x.response.nil? ? "-" : x.response.status}}
+                {name: "Status", cb: Proc.new {
+                       |x| x.response.nil? ? "-" : Turf::Response.color_status(x.response.status)
+                    }}
               ]
     Turf::tp self, columns
   end

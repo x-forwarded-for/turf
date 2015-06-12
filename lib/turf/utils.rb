@@ -21,16 +21,17 @@ module Turf
       adjust_width
     end
 
-    def truncate(s, max_len)
+    def truncate(s, max_len, *args)
       s[0..max_len-1]
     end
 
-    def character_rtruncate(s, max_len, c)
-      character_truncate(s.reverse, max_len, c).reverse
+    def character_rtruncate(s, max_len, *args)
+      character_truncate(s.reverse, max_len, *args).reverse
     end
 
-    def character_truncate(s, max_len, c)
+    def character_truncate(s, max_len, *args)
       # Truncate the string, using a splitting character
+      c = args[0]
       if s.length > max_len
         if s[1..-1].include? c
           init_length = s.length
@@ -80,8 +81,8 @@ module Turf
           @columns.collect { |column|
             v = column[:cb].call(r).to_s
             n = column[:name]
-            if v.length > column[:width]
-              column[:width] = v.length
+            if v.uncolorize.length > column[:width]
+              column[:width] = v.uncolorize.length
             end
             v
         }
@@ -93,10 +94,10 @@ module Turf
       tbody = @rows.collect { |row|
                 row.collect.with_index { |cell, i|
                   col = @columns[i]
-                  if cell.length > col[:width]
+                  if cell.uncolorize.length > col[:width]
                     cell = send(col[:adjust_cb], cell, col[:width], col[:adjust_args])
                   end
-                  cell.ljust(col[:width])
+                  colorized_ljust(cell, col[:width])
                 }.join(" ")
               }.join("\n")
       [thead, tbody].join("\n")
@@ -129,6 +130,13 @@ module Turf
       adjustables.each { |a|
         a[:width] = remaining_width * (a[:weight].to_f/total_weight) - 1
       }
+    end
+
+  private
+
+    def colorized_ljust(s, w)
+      # Left adjust a string that is colorized
+      s + (" " * (w - s.uncolorize.length))
     end
 
   end
