@@ -10,21 +10,26 @@ class RequestArrayTest < MiniTest::Test
     @ws.terminate
   end
 
-  def test_to_s
-    ra = Turf::get("http://127.0.0.1:#{@ws_port}/") * 10
-    puts ra
+  def test_inspect
+    ra = Turf::get("http://127.0.0.1:#{@ws_port}/") * 2
+    assert_includes(ra.inspect.uncolorize, "unknown:2")
     ra.run
-    puts ra
+    assert_includes(ra.inspect.uncolorize, "200:2")
+  end
+
+  def test_to_s
+    ra = Turf::get("http://127.0.0.1:#{@ws_port}/") * 2
+    refute_includes(ra.to_s, "200")
+    ra.run
+    assert_includes(ra.to_s, "200")
   end
 
   def test_parallel
-    io = StringIO.new "GET / HTTP/1.1\r\n\r\n"
-    r = Turf::Request.new io, hostname: "127.0.0.1", port: @ws_port
-    rs = r * 12
-    assert_equal(0, rs.done.length)
-    rs.parallel
-    puts rs.inspect
-    assert_equal(12, rs.done.length)
+    r = Turf::get("http://127.0.0.1:#{@ws_port}/")
+    ra = r * 7
+    assert_equal(0, ra.done.length)
+    ra.parallel
+    assert_equal(7, ra.done.length)
   end
 
 end
