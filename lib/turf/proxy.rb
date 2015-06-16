@@ -247,6 +247,15 @@ module Turf
 
   module_function
 
+  # Starts a regular proxy on the default interface and port.
+  # Use Ctrl-C to terminate the proxy.
+  # See Proxy.new for possible arguments
+  #
+  # Returns a RequestArray of all the requests processed.
+  #
+  # Example:
+  #     ra = proxy
+  #
   def proxy(args = {})
     p = Proxy.new args
     p.bind
@@ -254,6 +263,15 @@ module Turf
     return p.requests
   end
 
+  # Starts an automated proxy which will use default actions
+  # for all requests (HTTP => forward, HTTPS => man-in-the-middle)
+  # See Proxy.new for possible arguments
+  #
+  # Returns a RequestArray of all the requests processed.
+  #
+  # Example:
+  #     ra = forwarder
+  #
   def forwarder(args = {})
     p = Proxy.new args
     p.continue = true

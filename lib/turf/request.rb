@@ -1,23 +1,61 @@
 require 'uri'
 require 'colorize'
 
+##
+# Represents an HTTP request.
+#
+# This is the basic class for Turf. Direct instanciation will rarely occur.
+# One may use the Turf.get and Turf.post aliases to create a Request from
+# an URL.
+#
+# When the request is sent, only the basic attributes are used. This is what
+# is exactly sent on the socket for every request:
+#
+#   <method> space <url> space <http_version> \r\n
+#   <raw_headers> \r\n
+#   \r\n
+#   <raw_content>
+#
+# All the other attributes are higher level abstractions that will be generated
+# from these primitive attributes.
+#
+# See also Turf::Response and Turf::RequestArray
 class Turf::Request
 
   include Turf::Message
 
+  # Hostname or IP address e.g., "example.org, "127.0.0.1"
   attr_accessor :hostname
+  # Port, must be an integer e.g., 8000, 443
   attr_accessor :port
+  # Boolean to describe if the request uses SSL/TLS
   attr_accessor :use_ssl
 
+  # Method or HTTP verb e.g., GET, POST
   attr_accessor :method
+  # URL e.g., "/index.html?param=abc"
+  # May include the hostname when using the CONNECT method
   attr_accessor :url
+  # HTTP version with prefix e.g., "HTTP/1.1"
   attr_accessor :http_version
 
+  # Raw headers represented as a String
   attr_accessor :raw_headers
+  # Raw content represented as a String
   attr_accessor :raw_content
 
+  # A reference to the associated Turf::Response. May be nil if the
+  # Request has not been run yet
   attr_accessor :response
 
+  ##
+  # Create a new Request
+  #
+  # +io+ must be a IO-like object from which the Request is read.
+  # If +hostname+ is not provided, it will be read from +io+.
+  # If +port+ is not provided, it will be deduce from the URL scheme.
+  # If +use_ssl+ is not provided, it will be deduce from +port+.
+  #
   def initialize(io, hostname: nil, port: nil, use_ssl: false)
     io = StringIO.new(io) if io.is_a? String
     start_line = read_start_line(io)
@@ -55,18 +93,32 @@ class Turf::Request
     @response = nil
   end
 
+  # Returns the path of the Request e.g., "/index.html"
   def path
     URI(@url).path
   end
 
+  # Returns the headers as a list of pairs
   def headers
       parse_headers(@raw_headers)
   end
 
+  # Use to create an HTTP connection based on the Request's
+  # attributes. See Request.run
   def connect(proxy: nil)
     super(@hostname, @port, @use_ssl, proxy: proxy)
   end
 
+  ##
+  # Run a Request
+  #
+  # If +sock+ is provided, it will be used as socket. Otherwise
+  # a new connection is created.
+  #
+  # A temporary proxy may be set via the +proxy+ argument.
+  #
+  # In case of success, a Turf::Response object is returned.
+  # This object is also associated with the Request.response attribute.
   def run(sock: nil, chunk_cb: nil, proxy: nil)
     sock ||= connect(proxy: proxy)
     Turf::Session.instance.history << self
@@ -88,10 +140,8 @@ class Turf::Request
     @response = read_response(sock)
   end
 
-  def read_response(sock)
-    Turf::Response.new(sock, self, chunk_cb: nil)
-  end
-
+  ##
+  # Returns the string representation of the Request
   def to_s
     if /\ACONNECT\z/i =~ @method
       start_line = [@method, "#{@hostname}:#{@port}", @http_version].join(" ")
@@ -111,10 +161,15 @@ class Turf::Request
     @hostname == r.hostname and @port == r.port and @use_ssl == use_ssl
   end
 
+  ##
+  # Duplicate the Request and return a Turf::RequestArray
   def *(n)
     Turf::RequestArray.new (1..n).to_a.map { |x| self.clone }
   end
 
+  ##
+  # Update the Content-Length header according to the size of
+  # Request.raw_content
   def update_content_length
     l = @raw_content.length
     @raw_headers = build_headers(add_header(remove_header(headers,
@@ -149,6 +204,12 @@ class Turf::Request
     return method.green if ["POST", "PUT"].include? method
     return method.yellow if ["CONNECT"].include? method
     return method
+  end
+
+  private
+
+  def read_response(sock)
+    Turf::Response.new(sock, self, chunk_cb: nil)
   end
 
 end
