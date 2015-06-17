@@ -9,4 +9,5 @@ require 'turf'
 
 include Turf
 
-IRB.start
+console = Turf::Console.new
+console.eval_input

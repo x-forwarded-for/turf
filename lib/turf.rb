@@ -11,4 +11,5 @@ module Turf
   require_relative 'turf/proxy'
   require_relative 'turf/utils'
   require_relative 'turf/aliases'
+  require_relative 'turf/console'
 end

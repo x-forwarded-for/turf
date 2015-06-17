@@ -226,7 +226,7 @@ module Turf
                 @ui.info e
               end
             end
-            rescue IRB::Abort
+            rescue Interrupt
               if @continue
                 @continue = false
                 @ui.info "Manual mode", from: "main"
@@ -237,7 +237,7 @@ module Turf
           end
           id += 1
         end
-      rescue IRB::Abort # IRB translation for SIGINT
+      rescue Interrupt
         @server.shutdown
         threads.each { |t| t.terminate }
       end

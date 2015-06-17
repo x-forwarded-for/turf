@@ -48,7 +48,7 @@ class ProxyTest < MiniTest::Test
   def test_irb_stop_after_start
     def @ui.info(message, from: nil)
       @message = message
-      @proxy_thread.raise IRB::Abort
+      @proxy_thread.raise Interrupt
     end
 
     @ui.proxy_thread, port = start_proxy
@@ -67,7 +67,7 @@ class ProxyTest < MiniTest::Test
     r = Turf::get("http://127.0.0.1:#{ws_port}/")
     r.run proxy: "http://127.0.0.1:#{p_port}"
 
-    p.raise IRB::Abort
+    p.raise Interrupt
     p.join
     ws.terminate
     assert_equal(1, @p.requests.length)
@@ -80,7 +80,7 @@ class ProxyTest < MiniTest::Test
     r = Turf::get("https://127.0.0.1:#{ws_port}/")
     r.run proxy: "http://127.0.0.1:#{p_port}"
 
-    p.raise IRB::Abort
+    p.raise Interrupt.new
     p.join
     ws.terminate
     assert_equal(2, @p.requests.length)
@@ -95,7 +95,7 @@ class ProxyTest < MiniTest::Test
       # Need to raise second abort once the first one
       # has been processed.
       if s.include?("Use Ctrl-C one more time to quit")
-        @proxy_thread.raise IRB::Abort
+        @proxy_thread.raise Interrupt
       end
     end
 
@@ -105,7 +105,7 @@ class ProxyTest < MiniTest::Test
     r.run proxy: "http://127.0.0.1:#{p_port}"
     assert_equal("200", r.response.status)
 
-    p.raise IRB::Abort
+    p.raise Interrupt
     p.join
     ws.terminate
     assert_equal(1, @p.requests.length)
@@ -124,7 +124,7 @@ class ProxyTest < MiniTest::Test
       r.run proxy: "http://127.0.0.1:#{p_port}"
     }
 
-    p.raise IRB::Abort
+    p.raise Interrupt
     p.join
     ws.terminate
     assert_equal(1, @p.requests.length)
