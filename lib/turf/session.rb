@@ -50,12 +50,16 @@ module Turf
 
   module_function
 
+  ##
+  # Save the session under a particular name
+  # If no name is provided, "default" will be used
   def save(name = nil)
     Session.instance.name = name unless name.nil?
     Session.instance.save
   end
 
-  # Ruby already uses 'load'
+  ##
+  # Restore a session previously saved
   def restore(name)
     Session.instance.load name
   end
