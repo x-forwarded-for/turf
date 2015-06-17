@@ -183,6 +183,7 @@ class Turf::Request
       loop do
         p = payloads.next.to_s
         nc = to_s[0...offset_begin] + p + to_s[offset_end..-1]
+        # FIXME should be more careful
         nc = nc.gsub(/^Content-Length:.*\n/, "")
         nr = Turf::Request.new nc, hostname: @hostname, port: @port, use_ssl: @use_ssl
         nr.update_content_length
