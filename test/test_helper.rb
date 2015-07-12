@@ -4,6 +4,7 @@ require 'minitest/hell'
 require 'thread'
 require 'webrick'
 require 'webrick/https'
+require 'stringio'
 
 require_relative '../lib/turf'
 
@@ -51,6 +52,9 @@ def start_tls_webrick
     ws = Thread.new {
       begin
         cert_name = [ %w[CN localhost], ]
+        # unfortunately needed because webrick's ssl.rb has $stderr.putc
+        orig_stderr = $stderr
+        $stderr = StringIO.new
         server = WEBrick::HTTPServer.new(
           Port: port,
           AccessLog: [],
@@ -62,6 +66,7 @@ def start_tls_webrick
             m.synchronize { c.signal }
           end
         )
+        $stderr = orig_stderr
         server.mount_proc '/' do |req, res|
           res.body = 'Hello, world!'
         end
