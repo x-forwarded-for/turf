@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path(File.dirname(__FILE__) + '/../lib')
+$LOAD_PATH.unshift(lib) if File.directory?(lib) && !$LOAD_PATH.include?(lib)
+
+require 'pry'
+require 'turf'
+
+include Turf
+
+Pry.config.should_load_rc = false
+Pry.config.history.should_save = false
+Pry.config.history.should_load = false
+Pry.config.commands.delete "history"
+Pry.config.prompt_name = "turf"
+
+Pry.start binding, quiet: true
