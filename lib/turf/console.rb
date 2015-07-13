@@ -2,8 +2,19 @@ require 'irb'
 require 'irb/ruby-lex'
 require 'irb/input-method'
 require 'irb/locale'
+require 'irb/completion'
 
 IRB.conf[:LC_MESSAGES] = IRB::Locale.new
+
+# IRB hack to be able to use completion with readline
+class DummyContext
+  attr_accessor :workspace
+end
+class DummyWorkspace
+  attr_accessor :binding
+end
+IRB.conf[:MAIN_CONTEXT] = DummyContext.new
+IRB.conf[:MAIN_CONTEXT].workspace = DummyWorkspace.new
 
 ##
 # Console
@@ -14,18 +25,21 @@ IRB.conf[:LC_MESSAGES] = IRB::Locale.new
 #
 class Turf::Console
 
-  # Hack to get _ alias
-  @@last_result = nil
+  BANNER = "Turf - by X-Forwarded-For"
 
   def initialize
     @scanner = RubyLex.new
     @scanner.exception_on_syntax_error = false
+    @last_result = nil
     @binding = TOPLEVEL_BINDING
-    @io = IRB::StdioInputMethod.new
-  end
+    if defined?(IRB::ReadlineInputMethod) and STDIN.tty?
+      IRB.conf[:MAIN_CONTEXT].workspace.binding = @binding
+      @io = IRB::ReadlineInputMethod.new
+    else
+      @io = IRB::StdioInputMethod.new
+    end
 
-  def self.last_result
-    @@last_result
+    puts BANNER
   end
 
   def eval_input
@@ -45,8 +59,7 @@ class Turf::Console
           puts "\n"
         end
       rescue Interrupt => exc
-        puts exc
-        puts "\n"
+        puts "^C\n"
         raise RubyLex::TerminateLineInput
       end
       l
@@ -54,9 +67,9 @@ class Turf::Console
 
     @scanner.each_top_level_statement do |line, line_no|
       begin
-        @@last_result = eval(line, @binding, __FILE__, line_no)
-        print "=> ", @@last_result.inspect, "\n"
-        eval("_ = Turf::Console.last_result", @binding)
+        @last_result = eval(line, @binding, __FILE__, line_no)
+        print "=> ", @last_result.inspect, "\n"
+        @binding.local_variable_set "_", @last_result
       rescue Exception => exc
         print exc.class, ": ", exc, "\n"
         #puts exc.backtrace
