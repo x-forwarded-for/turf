@@ -169,7 +169,7 @@ module Turf::Message
     sent = 0
     loop do
       sent += sock.write(buffer[sent..-1])
-      break if sent == buffer.length
+      break if sent == buffer.bytesize
     end
   end
 
