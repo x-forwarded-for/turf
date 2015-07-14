@@ -30,6 +30,10 @@ class Turf::Response
     parse_headers(@raw_headers)
   end
 
+  def [](name)
+    get_header(headers, name)
+  end
+
   def content
     decode_content(headers, @raw_content)
   end

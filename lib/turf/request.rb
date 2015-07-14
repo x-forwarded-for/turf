@@ -100,7 +100,11 @@ class Turf::Request
 
   # Returns the headers as a list of pairs
   def headers
-      parse_headers(@raw_headers)
+    parse_headers(@raw_headers)
+  end
+
+  def [](name)
+    get_header(headers, name)
   end
 
   # Use to create an HTTP connection based on the Request's
