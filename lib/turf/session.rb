@@ -24,7 +24,7 @@ module Turf
       dir = File.join(Configuration.instance.session_dir, @name)
       Dir.mkdir(dir, 0700) unless Dir.exist?(dir)
       fname = File.join(dir, DateTime.now.iso8601)
-      File.open(fname, "wb", 0400) { |f|
+      File.open(fname, "wb", 0600) { |f|
         f.write(Marshal.dump(s))
       }
       puts "Saved under #{fname}"
