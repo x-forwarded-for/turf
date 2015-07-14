@@ -46,20 +46,24 @@ Content-Type: application/octet-stream\r
   def post(url, args)
     host = URI(url).hostname
     encoded_args = URI::encode_www_form(args)
-    Request.new(POST_TEMPLATE % [url, host, encoded_args])
+    r = Request.new(POST_TEMPLATE % [url, host, encoded_args])
+    r.update_content_length
+    r
   end
 
   def multipart(url, args={})
     host = URI(url).hostname
-    boundary = "--#{SecureRandom.hex}"
+    boundary = "#{SecureRandom.hex}"
     content = args.collect { |k,v|
       if v.is_a? File
         MULTIPART_FILE % [boundary, k, File.basename(v.path), v.read]
       else
         MULTIPART_VAR % [boundary, k, v]
       end
-    }.push("#{boundary}--").join("\r\n")
-    Request.new(MULTIPART_TEMPLATE % [url, host, boundary, content])
+    }.push("--#{boundary}--\r\n").join("\r\n")
+    r = Request.new(MULTIPART_TEMPLATE % [url, host, boundary, content])
+    r.update_content_length
+    r
   end
 
 end
