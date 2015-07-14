@@ -27,18 +27,21 @@ class Turf::Console
 
   BANNER = "Turf - by X-Forwarded-For"
 
-  def initialize
+  def initialize(file: nil)
     @scanner = RubyLex.new
     @scanner.exception_on_syntax_error = false
     @last_result = nil
     @binding = TOPLEVEL_BINDING
-    if defined?(IRB::ReadlineInputMethod) and STDIN.tty?
-      IRB.conf[:MAIN_CONTEXT].workspace.binding = @binding
-      @io = IRB::ReadlineInputMethod.new
+    if file.nil?
+      if defined?(IRB::ReadlineInputMethod) and STDIN.tty?
+        IRB.conf[:MAIN_CONTEXT].workspace.binding = @binding
+        @io = IRB::ReadlineInputMethod.new
+      else
+        @io = IRB::StdioInputMethod.new
+      end
     else
-      @io = IRB::StdioInputMethod.new
+      @io = IRB::FileInputMethod.new file
     end
-
     puts BANNER
   end
 
