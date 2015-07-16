@@ -12,4 +12,5 @@ module Turf
   require_relative 'turf/utils'
   require_relative 'turf/aliases'
   require_relative 'turf/console'
+  require_relative 'turf/cookie'
 end

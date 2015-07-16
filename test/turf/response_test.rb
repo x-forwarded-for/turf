@@ -31,5 +31,10 @@ class ResponseTest < MiniTest::Test
     assert_equal('{"alertes":[]}', response.content)
   end
 
+  def test_cookies
+    response_io = "HTTP/1.1 200 OK\r\nSet-Cookie: PHPSESS_ID=0xdeadbeef\r\n\r\n"
+    response = Turf::Response.new(StringIO.new(response_io), @r)
+    assert_equal("0xdeadbeef", response.cookies["PHPSESS_ID"])
+  end
 
 end

@@ -34,6 +34,13 @@ class Turf::Response
     get_header(headers, name)
   end
 
+  def cookies
+    Hash[ get_header(headers, "Set-Cookie").collect { |v|
+      c = Turf::Cookie.parse(v, set_cookie=true)
+      [c.name, c.value]
+    } ]
+  end
+
   def content
     decode_content(headers, @raw_content)
   end
