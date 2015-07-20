@@ -32,7 +32,7 @@ Content-Disposition: form-data; name="%s"\r
 
   MULTIPART_FILE = %Q{--%s\r
 Content-Disposition: form-data; name="%s"; filename="%s"\r
-Content-Type: application/octet-stream\r
+Content-Type: %s\r
 \r
 %s}
 
@@ -56,7 +56,9 @@ Content-Type: application/octet-stream\r
     boundary = "#{SecureRandom.hex}"
     content = args.collect { |k,v|
       if v.is_a? File
-        MULTIPART_FILE % [boundary, k, File.basename(v.path), v.read]
+        MULTIPART_FILE % [boundary, k, File.basename(v.path), "application/octet-stream", v.read]
+      elsif v.is_a? Hash
+        MULTIPART_FILE % [boundary, k, v[:filename], v[:type], v[:content]]
       else
         MULTIPART_VAR % [boundary, k, v]
       end

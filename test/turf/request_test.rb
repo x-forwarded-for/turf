@@ -79,8 +79,16 @@ class RequestTest < MiniTest::Test
   end
 
   def test_multipart_alias
-    r = Turf::multipart("http://127.0.0.1:#{@ws_port}/", "test" => 123, "file" => File.open("/etc/issue"))
+    r = Turf::multipart("http://127.0.0.1:#{@ws_port}/",
+                        "test" => 123,
+                        "file" => File.open("/etc/issue"),
+                        "file2" => {
+                            filename: "my_image.png",
+                            type: "image/png",
+                            content: "PNG\xff\xff"}
+                       )
     assert_includes(r.raw_content, "Content-Disposition: form-data; name=\"test\"\r\n\r\n123")
+    assert_includes(r.raw_content, "Content-Type: image/png")
   end
 
 end
