@@ -1,5 +1,5 @@
 require 'openssl'
-require "zlib"
+require 'zlib'
 
 module Turf::Message
 
