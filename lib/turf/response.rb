@@ -22,27 +22,27 @@ class Turf::Response
     if @request.method == "HEAD"
       @raw_content = ""
     else
-      @raw_content = read_content(io, headers, status: @status, chunk_cb: chunk_cb)
+      @raw_content = read_content(io, headers_array, status: @status, chunk_cb: chunk_cb)
     end
   end
 
-  def headers
+  def headers_array
     parse_headers(@raw_headers)
   end
 
-  def [](name)
-    get_header(headers, name)
+  def headers
+    Hash[headers_array]
   end
 
   def cookies
-    Hash[ get_header(headers, "Set-Cookie").collect { |v|
+    Hash[ get_header(headers_array, "Set-Cookie").collect { |v|
       c = Turf::Cookie.parse(v, set_cookie=true)
       [c.name, c.value]
     } ]
   end
 
   def content
-    decode_content(headers, @raw_content)
+    decode_content(headers_array, @raw_content)
   end
 
   def to_s
@@ -59,8 +59,8 @@ class Turf::Response
   def inspect
     fields = [self.class.color_status(@status),
               Turf.human_readable_size(length)]
-    if has_header(headers, 'Content-Type')
-      fields << get_header(headers, 'Content-Type')
+    if has_header(headers_array, 'Content-Type')
+      fields << get_header(headers_array, 'Content-Type')
     end
     return '<' + fields.join(" ") + '>'
   end

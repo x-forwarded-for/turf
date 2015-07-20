@@ -73,9 +73,7 @@ class RequestTest < MiniTest::Test
   def test_post_alias
     r = Turf::post("http://127.0.0.1:#{@ws_port}/", "test" => 123)
     assert_equal(r.raw_content, "test=123")
-    cl = r.get_header(r.headers, "Content-Length")
-    assert_equal(cl.length, 1)
-    assert_equal(cl.first, "8")
+    assert_equal("8", r.headers["Content-Length"])
   end
 
   def test_multipart_alias

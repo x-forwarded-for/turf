@@ -84,7 +84,7 @@ class Turf::Request
       end
     end
     @raw_headers = read_headers(io)
-    @raw_content = read_content(io, headers, method: @method)
+    @raw_content = read_content(io, headers_array, method: @method)
     @response = nil
   end
 
@@ -99,12 +99,12 @@ class Turf::Request
   end
 
   # Returns the headers as a list of pairs
-  def headers
+  def headers_array
     parse_headers(@raw_headers)
   end
 
-  def [](name)
-    get_header(headers, name)
+  def headers
+    Hash[headers_array]
   end
 
   # Use to create an HTTP connection based on the Request's
@@ -176,7 +176,7 @@ class Turf::Request
   # Request.raw_content
   def update_content_length
     l = @raw_content.length
-    @raw_headers = build_headers(add_header(remove_header(headers,
+    @raw_headers = build_headers(add_header(remove_header(headers_array,
                       'Content-Length'), 'Content-Length', l))
   end
 
