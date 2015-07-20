@@ -1,4 +1,5 @@
 module Turf
+  require_relative 'turf/version'
   require_relative 'turf/configuration'
   require_relative 'turf/message'
   require_relative 'turf/request'
