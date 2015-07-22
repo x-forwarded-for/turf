@@ -65,7 +65,7 @@ module Turf
       when :view
         @proxy.ui.info @request.to_s
       when :view_headers
-        @proxy.ui.info @request.headers.to_s
+        @proxy.ui.info @request.headers_array.to_a.to_s
       when :mitm_ssl
         mitm_ssl(@request.hostname, @request.port)
         @action = request_prologue

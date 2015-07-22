@@ -14,4 +14,7 @@ module Turf
   require_relative 'turf/aliases'
   require_relative 'turf/console'
   require_relative 'turf/cookie'
+  require_relative 'turf/volatile/headers_array'
+  require_relative 'turf/volatile/headers'
+  require_relative 'turf/volatile/cookies'
 end

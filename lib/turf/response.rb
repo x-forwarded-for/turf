@@ -27,18 +27,15 @@ class Turf::Response
   end
 
   def headers_array
-    parse_headers(@raw_headers)
+    Turf::VolatileHeadersArray.new self
   end
 
   def headers
-    Hash[headers_array]
+    Turf::VolatileHeaders.new self
   end
 
   def cookies
-    Hash[ get_header(headers_array, "Set-Cookie").collect { |v|
-      c = Turf::Cookie.parse(v, set_cookie=true)
-      [c.name, c.value]
-    } ]
+    Turf::VolatileCookies.new self
   end
 
   def content
@@ -59,8 +56,8 @@ class Turf::Response
   def inspect
     fields = [self.class.color_status(@status),
               Turf.human_readable_size(length)]
-    if has_header(headers_array, 'Content-Type')
-      fields << get_header(headers_array, 'Content-Type')
+    if headers_array.include?('Content-Type')
+      fields << headers_array.get_first('Content-Type')
     end
     return '<' + fields.join(" ") + '>'
   end

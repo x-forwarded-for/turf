@@ -98,13 +98,16 @@ class Turf::Request
     URI(@url).path
   end
 
-  # Returns the headers as a list of pairs
   def headers_array
-    parse_headers(@raw_headers)
+    Turf::VolatileHeadersArray.new self
   end
 
   def headers
-    Hash[headers_array]
+    Turf::VolatileHeaders.new self
+  end
+
+  def cookies
+    Turf::VolatileCookies.new self
   end
 
   # Use to create an HTTP connection based on the Request's
@@ -176,8 +179,8 @@ class Turf::Request
   # Request.raw_content
   def update_content_length
     l = @raw_content.length
-    @raw_headers = build_headers(add_header(remove_header(headers_array,
-                      'Content-Length'), 'Content-Length', l))
+    headers_array.delete_all 'Content-Length'
+    headers_array << ['Content-Length', l]
   end
 
   def lazy_inject_at(ip, payloads)

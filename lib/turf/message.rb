@@ -17,48 +17,12 @@ module Turf::Message
     return headers
   end
 
-  def parse_headers(raw_headers)
-    headers = Array.new
-    raw_headers.each_line do |l|
-      unless l.empty?
-        headers << l.split(":", 2).map(&:strip)
-      end
-    end
-    return headers
-  end
-
-  def build_headers(headers)
-    (headers.collect { |n, v| "#{n}: #{v}" } + [""]).join("\r\n")
-  end
-
-  def get_header(headers, name)
-    headers.select { |n, v| n.downcase == name.downcase }.map(&:last)
-  end
-
-  def has_header(headers, name, value = nil)
-    headers.each do |n, v|
-      if n.downcase == name.downcase
-        return true if not value or v.downcase == value.downcase
-        return false
-      end
-    end
-    return false
-  end
-
-  def add_header(headers, name, value)
-    headers + [[name, value]]
-  end
-
-  def remove_header(headers, name)
-    headers.select { |n, v| n != name }
-  end
-
-  def read_content(io, headers, status: nil, method: nil, chunk_cb: nil)
+  def read_content(io, vha, status: nil, method: nil, chunk_cb: nil)
     return "" if %w{204 304}.include? status
-    if has_header(headers, 'Transfer-Encoding', 'chunked')
+    if vha.include?('Transfer-Encoding', 'chunked')
       return read_chunked(io)
-    elsif has_header(headers, 'Content-Length')
-      l = get_header(headers, 'Content-Length').first.to_i
+    elsif vha.include?('Content-Length')
+      l = vha.get_first('Content-Length').to_i
       raise Exception('Invalid Content-Length') if l < 0
       return read_exactly(io, l)
     elsif status or %w{POST PUT}.include? method
@@ -108,16 +72,16 @@ module Turf::Message
     end
   end
 
-  def decode_content(headers, raw_content)
-    if has_header(headers, "Transfer-Encoding", "chunked")
+  def decode_content(vha, raw_content)
+    if vha.include?("Transfer-Encoding", "chunked")
       c = unchunk_content(raw_content)
     else
       c = raw_content
     end
-    if has_header(headers, "Content-Encoding", "gzip")
+    if vha.include?("Content-Encoding", "gzip")
       i = Zlib::Inflate.new(32 + Zlib::MAX_WBITS)
       c = i.inflate(c)
-    elsif has_header(headers, "Content-Encoding", "deflate")
+    elsif vha.include?("Content-Encoding", "deflate")
       i = Zlib::Inflate.new(-Zlib::MAX_WBITS)
       c = i.inflate(c)
     end
