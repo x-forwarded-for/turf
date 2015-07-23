@@ -15,11 +15,11 @@ module Turf
     end
 
     def []=(key, value)
-      @r.raw_headers = build(parse.merge({name => value}))
+      @r.raw_headers = build(parse.merge({key => value}))
     end
 
     def delete(key)
-      @r.raw_headers = build(parse.select { |n,v| n != name })
+      @r.raw_headers = build(parse.select { |n,v| n != key })
     end
 
     def to_h

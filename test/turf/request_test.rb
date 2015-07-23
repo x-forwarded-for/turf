@@ -89,6 +89,14 @@ class RequestTest < MiniTest::Test
     assert_includes(r.raw_content, "Content-Type: image/png")
   end
 
+  def test_modify_headers
+    r = Turf::get("http://127.0.0.1:#{@ws_port}/")
+    r.headers["Accept"] = "text/json"
+    assert_equal("text/json", r.headers["Accept"])
+    r.headers.delete 'Accept'
+    refute_includes(r.headers.to_h, 'Accept')
+  end
+
   def test_copy_state
     r = Turf::get("http://127.0.0.1:#{@ws_port}/1")
     r.cookies["test"] = "1234"
