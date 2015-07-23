@@ -69,6 +69,7 @@ module Turf::Message
       s = content_io.readline.to_i(16)
       return buffer if s == 0
       buffer << read_exactly(content_io, s)
+      content_io.readline
     end
   end
 

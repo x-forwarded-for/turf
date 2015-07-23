@@ -43,11 +43,11 @@ class RequestTest < MiniTest::Test
   end
 
   def test_chunked
-    io = StringIO.new "GET http://example.org/ HTTP/1.1\r\n" +
-                       "Transfer-Encoding: chunked\r\n\r\n" +
-                       "8\r\nabcdefgh\r\n0\r\n\r\n"
+    io = "GET http://example.org/ HTTP/1.1\r\n" +
+         "Transfer-Encoding: chunked\r\n\r\n" +
+         "4\r\nabcd\r\n3\r\nefg\r\n0\r\n\r\n"
     r = Turf::Request.new io
-    assert_equal(r.raw_content, "8\r\nabcdefgh\r\n0\r\n\r\n")
+    assert_equal("abcdefg", r.content)
   end
 
   def test_inject_at
