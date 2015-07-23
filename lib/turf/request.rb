@@ -57,7 +57,10 @@ class Turf::Request
   # If +use_ssl+ is not provided, it will be deduce from +port+.
   #
   def initialize(io, hostname: nil, port: nil, use_ssl: false)
-    io = StringIO.new(io) if io.is_a? String
+    if io.is_a? String
+      io = StringIO.new(io)
+      io.set_encoding("binary")
+    end
     start_line = read_start_line(io)
     @method, url, @http_version = start_line
     if /\ACONNECT\z/i =~ @method
@@ -193,14 +196,21 @@ class Turf::Request
   end
 
   def lazy_inject_at(ip, payloads)
-    offset_begin = to_s.index(ip)
+    begin
+      r_new = clone
+      r_new.headers_array.delete_all('Content-Length')
+      s = r_new.to_s
+    rescue
+      puts "Unable to parse headers / remove Content-Length"
+      puts "Make sure you remove that header manually"
+      s = to_s
+    end
+    offset_begin = s.index(ip)
     offset_end = offset_begin + ip.length
     return Turf::RequestEnumerator.new do |y|
       loop do
         p = payloads.next.to_s
-        nc = to_s[0...offset_begin] + p + to_s[offset_end..-1]
-        # FIXME should be more careful
-        nc = nc.gsub(/^Content-Length:.*\n/, "")
+        nc = s[0...offset_begin] + p + s[offset_end..-1]
         nr = Turf::Request.new nc, hostname: @hostname, port: @port, use_ssl: @use_ssl
         nr.update_content_length
         y << nr
