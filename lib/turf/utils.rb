@@ -77,9 +77,9 @@ module Turf
 
     def build
       # Populate rows and update columns length if necessary
-      rows = @requests.collect do |r|
+      rows = @requests.collect.with_index do |r, idx|
           @columns.collect { |column|
-            v = column[:cb].call(r).to_s
+            v = column[:cb].call(r, idx).to_s
             n = column[:name]
             if v.uncolorize.length > column[:width]
               column[:width] = v.uncolorize.length

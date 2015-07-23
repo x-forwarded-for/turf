@@ -58,25 +58,28 @@ class Turf::RequestArray
 
   def to_s
     columns = [ {name: "Method",
-                       cb: Proc.new { |x| x.color_method }
+                       cb: Proc.new { |x, idx| x.color_method }
                        },
                 {name: "Hostname",
-                       cb: Proc.new { |x| x.hostname },
+                       cb: Proc.new { |x, idx| x.hostname },
                        weight: 0.1,
                        adjust_cb: :character_truncate,
                        adjust_args: "." },
                 {name: "Path",
-                       cb: Proc.new { |x| x.path },
+                       cb: Proc.new { |x, idx| x.path },
                        weight: 0.2,
                        adjust_cb: :character_rtruncate,
                        adjust_args: "/" },
-                {name: "Length", cb: Proc.new { |x|
+                {name: "Length", cb: Proc.new { |x, idx|
                        x.response.nil? ? "-" : Turf.human_readable_size(x.response.length)
                        }},
-                {name: "Status", cb: Proc.new {
-                       |x| x.response.nil? ? "-" : Turf::Response.color_status(x.response.status)
-                    }}
+                {name: "Status", cb: Proc.new { |x, idx|
+                       x.response.nil? ? "-" : Turf::Response.color_status(x.response.status)
+                       }}
               ]
+    if length > 5
+      columns.insert(0, {name: "Id", cb: Proc.new { |x, idx| idx} })
+    end
     Turf::tp self, columns
   end
 
