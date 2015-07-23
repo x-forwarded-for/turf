@@ -109,7 +109,7 @@ module Turf
       @request.run
 
       @proxy.ui.info @request.response.inspect
-      interact_response
+      interact_response unless @proxy.continue
       write_response
     end
 
@@ -147,6 +147,16 @@ module Turf
     end
 
     def interact_response
+      action_map = {"c" => :continue, "v" => :view,
+                    "d" => :drop, "h" => :view_headers }
+      action_map = action_map.merge({ "f" => :forward})
+      loop do
+        a = @proxy.ui.ask '[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ? '
+        a = a.empty? ? "f" : a
+        if action_map.include?(a)
+          return action_map[a]
+        end
+      end
     end
 
   end
