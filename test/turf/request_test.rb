@@ -11,7 +11,7 @@ class RequestTest < MiniTest::Test
   end
 
   def test_new
-    io = StringIO.new "GET / HTTP/1.1\r\n\r\n"
+    io = "GET / HTTP/1.1\r\n\r\n"
     r = Turf::Request.new io, hostname: "example.org"
     assert_equal(r.hostname, "example.org")
     assert_equal(r.port, 80)
@@ -19,7 +19,7 @@ class RequestTest < MiniTest::Test
   end
 
   def test_new_proxy_http
-    io = StringIO.new "GET http://example.org/ HTTP/1.1\r\n\r\n"
+    io = "GET http://example.org/ HTTP/1.1\r\n\r\n"
     r = Turf::Request.new io
     assert_equal(r.hostname, "example.org")
     assert_equal(r.port, 80)
@@ -27,7 +27,7 @@ class RequestTest < MiniTest::Test
   end
 
   def test_new_proxy_https_connect
-    io = StringIO.new "CONNECT example.org:4343 HTTP/1.1\r\n\r\n"
+    io = "CONNECT example.org:4343 HTTP/1.1\r\n\r\n"
     r = Turf::Request.new io
     assert_equal(r.hostname, "example.org")
     assert_equal(r.port, 4343)
@@ -51,18 +51,18 @@ class RequestTest < MiniTest::Test
   end
 
   def test_inject_at
-    io = StringIO.new "GET http://example.org/ HTTP/1.1\r\n" +
-                       "X-Forwarded-For: 169.254.1.1\r\n\r\n"
+    io = "GET http://example.org/ HTTP/1.1\r\n" +
+         "X-Forwarded-For: 169.254.1.1\r\n\r\n"
     r = Turf::Request.new io
     ira = r.inject_at("169.254.1.1", ["10.0.0.1", "192.168.1.1"])
     assert_equal(ira.length, 2)
   end
 
   def test_inject_at_post
-    io = StringIO.new "POST http://example.org/ HTTP/1.1\r\n" +
-                      "Content-Length: 8\r\n" +
-                      "Content-Type: application/x-www-form-urlencoded\r\n\r\n" +
-                      "abcdefgh"
+    io = "POST http://example.org/ HTTP/1.1\r\n" +
+         "Content-Length: 8\r\n" +
+         "Content-Type: application/x-www-form-urlencoded\r\n\r\n" +
+         "abcdefgh"
     r = Turf::Request.new io
     ira = r.inject_at("defgh", ["ijk", "l"])
     assert_equal(ira.length, 2)
