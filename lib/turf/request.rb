@@ -110,6 +110,11 @@ class Turf::Request
     Turf::VolatileCookies.new self
   end
 
+  def <<(request)
+    cookies.merge(request.cookies)
+    cookies.merge(request.response.cookies) if request.response
+  end
+
   # Use to create an HTTP connection based on the Request's
   # attributes. See Request.run
   def connect(proxy: nil)

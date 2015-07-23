@@ -30,6 +30,12 @@ module Turf
       build cookies
     end
 
+    def merge(other_cookies)
+      cookies = parse
+      cookies.merge!(other_cookies.to_h)
+      build cookies
+    end
+
     def delete(key)
       cookies = parse
       cookies.delete(key)

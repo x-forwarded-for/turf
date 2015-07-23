@@ -89,4 +89,14 @@ class RequestTest < MiniTest::Test
     assert_includes(r.raw_content, "Content-Type: image/png")
   end
 
+  def test_copy_state
+    r = Turf::get("http://127.0.0.1:#{@ws_port}/1")
+    r.cookies["test"] = "1234"
+    r.run
+    r.response.cookies["test2"] = "4567"
+    r2 = Turf::get("http://127.0.0.1:#{@ws_port}/2")
+    r2 << r
+    assert_equal("1234", r2.cookies["test"])
+    assert_equal("4567", r2.cookies["test2"])
+  end
 end
