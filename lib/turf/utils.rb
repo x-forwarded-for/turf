@@ -8,11 +8,21 @@ module Turf
     "#{size > 9 || size.modulo(1) < 0.1 ? '%d' : '%.1f'}%s" % [size, unit]
   end
 
+  def Turf.screen_width
+    if defined?(Pry)
+      Pry::Terminal.width!
+    elsif $stdout.tty? && $stdout.respond_to?(:winsize)
+      $stdout.winsize.last
+    else
+      80
+    end
+  end
+
   class TablePrinter
 
     def initialize(requests, columns, width: nil)
       @requests = requests
-      @width = width || 80
+      @width = width || Turf.screen_width
       @columns = expand_columns(columns)
       # Build all the rows with their contents,
       # expanded_columns may be modified
