@@ -115,6 +115,10 @@ class Turf::Request
     cookies.merge(request.response.cookies) if request.response
   end
 
+  def content
+    decode_content(headers_array, @raw_content)
+  end
+
   # Use to create an HTTP connection based on the Request's
   # attributes. See Request.run
   def connect(proxy: nil)
