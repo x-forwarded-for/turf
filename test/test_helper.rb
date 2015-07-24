@@ -6,7 +6,11 @@ require 'webrick'
 require 'webrick/https'
 require 'stringio'
 
-require_relative '../lib/turf'
+require 'turf'
+
+temp_dir = Dir.mktmpdir
+Turf.set_conf_path temp_dir
+Minitest.after_run { FileUtils.remove_entry_secure temp_dir }
 
 def start_basic_webrick
   m = Mutex.new

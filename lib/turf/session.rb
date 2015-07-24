@@ -21,7 +21,7 @@ module Turf
       b.eval("local_variables").each { |v|
         s[v] = b.local_variable_get(v)
       }
-      dir = File.join(Configuration.instance.session_dir, @name)
+      dir = File.join(Turf.conf.session_dir, @name)
       Dir.mkdir(dir, 0700) unless Dir.exist?(dir)
       fname = File.join(dir, DateTime.now.iso8601)
       File.open(fname, "wb", 0600) { |f|
@@ -31,7 +31,7 @@ module Turf
     end
 
     def load(name)
-      dir = File.join(Configuration.instance.session_dir, name)
+      dir = File.join(Turf.conf.session_dir, name)
       fname = Dir.glob(File.join(dir, "*")).last
       if File.exist?(fname)
         puts "Loading #{fname}"

@@ -4,12 +4,12 @@ module Turf
 
   class Configuration
 
-    include Singleton
-
     attr_reader :path
 
-    def initialize
-      @path = File.expand_path('~/.turf')
+    DEFAULT_PATH = '~/.turf'
+
+    def initialize(path = nil)
+      @path = path || File.expand_path(DEFAULT_PATH)
       Dir.mkdir(@path, 0700) unless Dir.exist?(@path)
       Dir.mkdir(cert_dir, 0700) unless Dir.exist?(cert_dir)
       Dir.mkdir(session_dir, 0700) unless Dir.exist?(session_dir)
@@ -28,7 +28,11 @@ module Turf
   module_function
 
   def conf
-    Configuration.instance
+    @conf ||= Configuration.new
+  end
+
+  def set_conf_path(path)
+    @conf = Configuration.new path
   end
 
 end
