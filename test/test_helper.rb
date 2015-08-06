@@ -15,10 +15,9 @@ Minitest.after_run { FileUtils.remove_entry_secure temp_dir }
 def start_basic_webrick
   mutex = Mutex.new
   condition = ConditionVariable.new
-  port = rand(1025..65535)
 
   server = WEBrick::HTTPServer.new(
-    Port: port,
+    Port: 0,
     AccessLog: [],
     Logger: WEBrick::Log::new("/dev/stderr", 1),
     BindAddress: '127.0.0.1',
@@ -44,13 +43,12 @@ def start_basic_webrick
   end
 
   mutex.synchronize { condition.wait(mutex) }
-  return webrick_thread, port
+  return webrick_thread, server.config[:Port]
 end
 
 def start_tls_webrick
   mutex = Mutex.new
   condition = ConditionVariable.new
-  port = rand(1025..65535)
 
   cert_name = [ %w[CN localhost], ]
 
@@ -60,7 +58,7 @@ def start_tls_webrick
 
   begin
     server = WEBrick::HTTPServer.new(
-      Port: port,
+      Port: 0,
       AccessLog: [],
       Logger: WEBrick::Log::new("/dev/stderr", 1),
       SSLEnable: true,
@@ -88,5 +86,5 @@ def start_tls_webrick
   end
 
   mutex.synchronize { condition.wait(mutex) }
-  return webrick_thread, port
+  return webrick_thread, server.config[:Port]
 end
