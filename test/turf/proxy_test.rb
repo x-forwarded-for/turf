@@ -25,23 +25,18 @@ class ProxyTest < MiniTest::Test
   end
 
   def start_proxy
-    port = rand(1024..65535)
     @m.synchronize {
       t = Thread.new do
-        begin
-          @m.synchronize {
-            @p = Turf::Proxy.new(port: port, ui: @ui)
-            @p.bind
-            @started.signal
-          }
-          @p.serve
-        rescue Errno::EADDRINUSE => e
-          puts "Unlucky run :("
-        end
+        @m.synchronize {
+          @p = Turf::Proxy.new(port: 0, ui: @ui)
+          @p.bind
+          @started.signal
+        }
+        @p.serve
       end
       @ui.proxy_thread = t
       @started.wait(@m)
-      return t, port
+      return t, @p.port
     }
   end
 

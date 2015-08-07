@@ -44,6 +44,7 @@ class Turf::Proxy
   require_relative "proxy/proxy_thread"
   require_relative "proxy/console_ui"
 
+  attr_reader :port
   attr_accessor :rules
   attr_accessor :requests
   attr_accessor :requests_lock
@@ -64,6 +65,9 @@ class Turf::Proxy
 
   def bind
     @server = TCPServer.new @hostname, @port
+    if @port.zero?
+      @port = @server.addr[1]
+    end
     @server.setsockopt(:SOCKET, :REUSEADDR, true)
   end
 
