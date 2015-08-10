@@ -16,6 +16,9 @@ class ProxyTest < MiniTest::Test
       ""
     end
 
+    def error(error_message)
+    end
+
   end
 
   def setup
@@ -142,5 +145,31 @@ class ProxyTest < MiniTest::Test
     assert_equal(2, @p.requests.length)
     assert_nil(@p.requests[0].response)
     assert_nil(@p.requests[1].response)
+  end
+
+  def test_cert_rejected_followed_by_not_rejected
+    p, p_port = start_proxy
+    ws, ws_port = start_tls_webrick
+
+    uri = URI.parse("https://127.0.0.1:#{ws_port}/")
+    req = Net::HTTP::Get.new(uri.request_uri)
+    con = Net::HTTP.new(uri.host, uri.port, '127.0.0.1', p_port)
+    con.use_ssl = true
+
+    ex = assert_raises(OpenSSL::SSL::SSLError) do
+      res = con.request(req)
+    end
+    assert_includes(ex.message, "certificate verify failed")
+
+    con.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    res2 = con.request(req)
+
+    p.raise Interrupt.new
+    p.join
+    ws.terminate
+    assert_equal(3, @p.requests.length)
+    assert_equal("CONNECT", @p.requests[0].method)
+    assert_equal("CONNECT", @p.requests[1].method)
+    assert_equal("GET", @p.requests[2].method)
   end
 end
