@@ -1,7 +1,7 @@
-require 'irb'
-require 'monitor'
-require 'socket'
-require 'readline'
+require "irb"
+require "monitor"
+require "socket"
+require "readline"
 
 module Turf
 

@@ -1,5 +1,5 @@
-require 'date'
-require 'singleton'
+require "date"
+require "singleton"
 
 module Turf
 
@@ -11,7 +11,7 @@ module Turf
     attr_accessor :history
 
     def initialize
-      @name = 'default'
+      @name = "default"
       @history = History.new
     end
 

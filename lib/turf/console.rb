@@ -1,8 +1,8 @@
-require 'irb'
-require 'irb/ruby-lex'
-require 'irb/input-method'
-require 'irb/locale'
-require 'irb/completion'
+require "irb"
+require "irb/ruby-lex"
+require "irb/input-method"
+require "irb/locale"
+require "irb/completion"
 
 IRB.conf[:LC_MESSAGES] = IRB::Locale.new
 

@@ -1,4 +1,4 @@
-require 'singleton'
+require "singleton"
 
 module Turf
 
@@ -6,7 +6,7 @@ module Turf
 
     attr_reader :path
 
-    DEFAULT_PATH = '~/.turf'
+    DEFAULT_PATH = "~/.turf"
 
     def initialize(path = nil)
       @path = path || File.expand_path(DEFAULT_PATH)

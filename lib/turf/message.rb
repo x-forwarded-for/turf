@@ -1,5 +1,5 @@
-require 'openssl'
-require 'zlib'
+require "openssl"
+require "zlib"
 
 module Turf::Message
 
@@ -19,11 +19,11 @@ module Turf::Message
 
   def read_content(io, vha, status: nil, method: nil, chunk_cb: nil)
     return "" if %w{204 304}.include? status
-    if vha.include?('Transfer-Encoding', 'chunked')
+    if vha.include?("Transfer-Encoding", "chunked")
       return read_chunked(io)
-    elsif vha.include?('Content-Length')
-      l = vha.get_first('Content-Length').to_i
-      raise Exception('Invalid Content-Length') if l < 0
+    elsif vha.include?("Content-Length")
+      l = vha.get_first("Content-Length").to_i
+      raise Exception("Invalid Content-Length") if l < 0
       return read_exactly(io, l)
     elsif status or %w{POST PUT}.include? method
       return io.read()

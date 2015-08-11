@@ -1,4 +1,4 @@
-require_relative '../test_helper'
+require_relative "../test_helper"
 
 class ProxyTest < MiniTest::Test
 
@@ -71,7 +71,7 @@ class ProxyTest < MiniTest::Test
 
     uri = URI.parse("http://127.0.0.1:#{ws_port}/")
     req = Net::HTTP::Get.new(uri.request_uri)
-    con = Net::HTTP.new(uri.host, uri.port, '127.0.0.1', p_port)
+    con = Net::HTTP.new(uri.host, uri.port, "127.0.0.1", p_port)
     res = con.request(req)
 
     p.raise Interrupt
@@ -86,7 +86,7 @@ class ProxyTest < MiniTest::Test
 
     uri = URI.parse("https://127.0.0.1:#{ws_port}/")
     req = Net::HTTP::Get.new(uri.request_uri)
-    con = Net::HTTP.new(uri.host, uri.port, '127.0.0.1', p_port)
+    con = Net::HTTP.new(uri.host, uri.port, "127.0.0.1", p_port)
     con.use_ssl = true
     con.verify_mode = OpenSSL::SSL::VERIFY_NONE
     res = con.request(req)
@@ -116,7 +116,7 @@ class ProxyTest < MiniTest::Test
 
     uri = URI.parse("http://127.0.0.1:#{ws_port}/")
     req = Net::HTTP::Get.new(uri.request_uri)
-    con = Net::HTTP.new(uri.host, uri.port, '127.0.0.1', p_port)
+    con = Net::HTTP.new(uri.host, uri.port, "127.0.0.1", p_port)
     res = con.request(req)
 
     assert_equal("200", res.code)
@@ -137,7 +137,7 @@ class ProxyTest < MiniTest::Test
 
     uri = URI.parse("http://127.0.0.1:#{ws_port}/lol")
     req = Net::HTTP::Get.new(uri.request_uri)
-    con = Net::HTTP.new(uri.host, uri.port, '127.0.0.1', p_port)
+    con = Net::HTTP.new(uri.host, uri.port, "127.0.0.1", p_port)
 
     assert_raises(EOFError) {
       res = con.request(req)
@@ -159,7 +159,7 @@ class ProxyTest < MiniTest::Test
 
     uri = URI.parse("https://127.0.0.1:#{ws_port}/")
     req = Net::HTTP::Get.new(uri.request_uri)
-    con = Net::HTTP.new(uri.host, uri.port, '127.0.0.1', p_port)
+    con = Net::HTTP.new(uri.host, uri.port, "127.0.0.1", p_port)
     con.use_ssl = true
 
     ex = assert_raises(OpenSSL::SSL::SSLError) do

@@ -1,12 +1,12 @@
-require 'minitest/autorun'
-require 'minitest/hell'
+require "minitest/autorun"
+require "minitest/hell"
 
-require 'thread'
-require 'webrick'
-require 'webrick/https'
-require 'stringio'
+require "thread"
+require "webrick"
+require "webrick/https"
+require "stringio"
 
-require 'turf'
+require "turf"
 
 temp_dir = Dir.mktmpdir
 Turf.set_conf_path temp_dir
@@ -20,14 +20,14 @@ def start_basic_webrick
     Port: 0,
     AccessLog: [],
     Logger: WEBrick::Log::new("/dev/stderr", 1),
-    BindAddress: '127.0.0.1',
+    BindAddress: "127.0.0.1",
     StartCallback: Proc.new do
       mutex.synchronize { condition.signal }
     end
   )
-  server.mount_proc '/' do |req, res|
+  server.mount_proc "/" do |req, res|
     res["Content-Type"] = "text/plain"
-    res.body = 'Hello, world!'
+    res.body = "Hello, world!"
     if req.body and req.body.include? "def12"
       res.status = "500"
     end
@@ -63,7 +63,7 @@ def start_tls_webrick
       Logger: WEBrick::Log::new("/dev/stderr", 1),
       SSLEnable: true,
       SSLCertName: cert_name,
-      BindAddress: '127.0.0.1',
+      BindAddress: "127.0.0.1",
       StartCallback: Proc.new do
         mutex.synchronize { condition.signal }
       end
@@ -72,8 +72,8 @@ def start_tls_webrick
     $stderr = orig_stderr
   end
 
-  server.mount_proc '/' do |req, res|
-    res.body = 'Hello, world!'
+  server.mount_proc "/" do |req, res|
+    res.body = "Hello, world!"
   end
 
   webrick_thread = Thread.new do

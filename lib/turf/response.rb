@@ -56,10 +56,10 @@ class Turf::Response
   def inspect
     fields = [self.class.color_status(@status),
               Turf.human_readable_size(length)]
-    if headers_array.include?('Content-Type')
-      fields << headers_array.get_first('Content-Type')
+    if headers_array.include?("Content-Type")
+      fields << headers_array.get_first("Content-Type")
     end
-    return '<' + fields.join(" ") + '>'
+    return "<" + fields.join(" ") + ">"
   end
 
   def self.color_status(status)

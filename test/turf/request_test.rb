@@ -1,4 +1,4 @@
-require_relative '../test_helper'
+require_relative "../test_helper"
 
 class RequestTest < MiniTest::Test
 
@@ -37,9 +37,9 @@ class RequestTest < MiniTest::Test
   def test_run
     r = Turf::get("http://127.0.0.1:#{@ws_port}/")
     r.run
-    assert_equal('200', r.response.status)
-    assert_includes(r.response.inspect, 'text/plain')
-    assert_includes(r.response.to_s, 'Hello, world!')
+    assert_equal("200", r.response.status)
+    assert_includes(r.response.inspect, "text/plain")
+    assert_includes(r.response.to_s, "Hello, world!")
   end
 
   def test_chunked
@@ -93,8 +93,8 @@ class RequestTest < MiniTest::Test
     r = Turf::get("http://127.0.0.1:#{@ws_port}/")
     r.headers["Accept"] = "text/json"
     assert_equal("text/json", r.headers["Accept"])
-    r.headers.delete 'Accept'
-    refute_includes(r.headers.to_h, 'Accept')
+    r.headers.delete "Accept"
+    refute_includes(r.headers.to_h, "Accept")
   end
 
   def test_copy_state

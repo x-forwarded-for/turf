@@ -1,5 +1,5 @@
-require 'uri'
-require 'colorize'
+require "uri"
+require "colorize"
 
 ##
 # Represents an HTTP request.
@@ -78,7 +78,7 @@ class Turf::Request
       raise Exception.new("No scheme: #{p_url}") if not p_url.scheme
       @url = URI::Generic.new(*([nil] * 4 + URI.split(url)[4..-1])).to_s
       @hostname = p_url.host
-      if p_url.scheme == 'https'
+      if p_url.scheme == "https"
         @use_ssl = true
         @port = p_url.port ? p_url.port : 443
       else
@@ -173,7 +173,7 @@ class Turf::Request
   end
 
   def inspect
-    '<' + [color_method, @hostname, @url].join(" ") + '>'
+    "<" + [color_method, @hostname, @url].join(" ") + ">"
   end
 
   def same_connection?(r)
@@ -191,14 +191,14 @@ class Turf::Request
   # Request.raw_content
   def update_content_length
     l = @raw_content.length
-    headers_array.delete_all 'Content-Length'
-    headers_array << ['Content-Length', l]
+    headers_array.delete_all "Content-Length"
+    headers_array << ["Content-Length", l]
   end
 
   def lazy_inject_at(ip, payloads)
     begin
       r_new = clone
-      r_new.headers_array.delete_all('Content-Length')
+      r_new.headers_array.delete_all("Content-Length")
       s = r_new.to_s
     rescue
       puts "Unable to parse headers / remove Content-Length"

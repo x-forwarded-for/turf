@@ -1,4 +1,4 @@
-require 'forwardable'
+require "forwardable"
 
 module Turf
 
@@ -13,9 +13,9 @@ module Turf
     def initialize(r)
       @r = r
       if @r.is_a? Turf::Response
-        @header_name = 'Set-Cookie'
+        @header_name = "Set-Cookie"
       else
-        @header_name = 'Cookie'
+        @header_name = "Cookie"
       end
     end
 
@@ -50,7 +50,7 @@ module Turf
 
     def parse
       Hash[ @r.headers_array.get_all(@header_name).collect { |v|
-        Turf::Cookie.parse(v, @header_name == 'Set-Cookie').collect { |c|
+        Turf::Cookie.parse(v, @header_name == "Set-Cookie").collect { |c|
           [c.name, c]
         }
       }.flatten(1)]

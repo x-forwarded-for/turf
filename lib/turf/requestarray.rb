@@ -1,4 +1,4 @@
-require 'forwardable'
+require "forwardable"
 
 class Turf::RequestArray
   extend Forwardable

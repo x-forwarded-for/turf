@@ -1,5 +1,5 @@
-require 'openssl'
-require 'securerandom'
+require "openssl"
+require "securerandom"
 
 module Turf
 
@@ -41,13 +41,13 @@ module Turf
 
     def generate_ca_key(key_path)
       key = OpenSSL::PKey::RSA.new 2048
-      File.open(key_path, 'w') do |f|
+      File.open(key_path, "w") do |f|
         f.write(key.to_pem)
       end
     end
 
     def generate_ca_certificate(ca_cert_path)
-      ca_name = OpenSSL::X509::Name.parse 'C=AU/O=X-Forwarded-For/CN=turf'
+      ca_name = OpenSSL::X509::Name.parse "C=AU/O=X-Forwarded-For/CN=turf"
       ca_certificate = OpenSSL::X509::Certificate.new
       ca_certificate.serial = generate_serial
       ca_certificate.version = 2
@@ -63,14 +63,14 @@ module Turf
       extension_factory.issuer_certificate = ca_certificate
 
       ca_certificate.add_extension(
-        extension_factory.create_extension('subjectKeyIdentifier', 'hash')
+        extension_factory.create_extension("subjectKeyIdentifier", "hash")
       )
       ca_certificate.add_extension(
-        extension_factory.create_extension('basicConstraints', 'CA:TRUE', true)
+        extension_factory.create_extension("basicConstraints", "CA:TRUE", true)
       )
 
       ca_certificate.sign key, OpenSSL::Digest::SHA1.new
-      File.open(ca_cert_path, 'w') do |f|
+      File.open(ca_cert_path, "w") do |f|
         f.write(ca_certificate.to_pem)
       end
     end
@@ -92,7 +92,7 @@ module Turf
       extension_factory.issuer_certificate = ca_certificate
 
       certificate.sign(key, OpenSSL::Digest::SHA1.new)
-      File.open(certificate_path(hostname), 'w') do |f|
+      File.open(certificate_path(hostname), "w") do |f|
         f.write(certificate.to_pem)
       end
     end

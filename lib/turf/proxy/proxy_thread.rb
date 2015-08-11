@@ -128,9 +128,9 @@ module Turf
       am = is_connect? ? action_map_https : action_map_http
       loop do
         if is_connect?
-          question = '[m]itm, (c)ontinue, (d)rop, (v)iew, (h)eaders ? '
+          question = "[m]itm, (c)ontinue, (d)rop, (v)iew, (h)eaders ? "
         else
-          question = '[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ? '
+          question = "[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ? "
         end
         a = @proxy.ui.ask(question)
         a = a.empty? ? (is_connect? ? "m" : "f") : a
@@ -145,7 +145,7 @@ module Turf
                     "d" => :drop, "h" => :view_headers }
       action_map = action_map.merge({ "f" => :forward})
       loop do
-        a = @proxy.ui.ask '[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ? '
+        a = @proxy.ui.ask "[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ? "
         a = a.empty? ? "f" : a
         if action_map.include?(a)
           return action_map[a]

@@ -1,3 +1,3 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 gemspec
-gem 'pry', :require => false
+gem "pry", :require => false
