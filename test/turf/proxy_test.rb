@@ -8,6 +8,11 @@ class ProxyTest < MiniTest::Test
 
     attr_accessor :proxy_thread
     attr_accessor :message
+    attr_reader :errors
+
+    def initialize
+      @errors = []
+    end
 
     def info(s, from: nil)
     end
@@ -17,6 +22,7 @@ class ProxyTest < MiniTest::Test
     end
 
     def error(error_message)
+      @errors << error_message
     end
 
   end
@@ -171,5 +177,7 @@ class ProxyTest < MiniTest::Test
     assert_equal("CONNECT", @p.requests[0].method)
     assert_equal("CONNECT", @p.requests[1].method)
     assert_equal("GET", @p.requests[2].method)
+    refute_nil(@ui.errors.detect{|error| error.include? "unknown ca"})
   end
+
 end
