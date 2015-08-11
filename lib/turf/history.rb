@@ -1,7 +1,7 @@
 class Turf::History < Turf::RequestArray
 
   def initialize(*args)
-    super *args
+    super(*args)
     @lock = Mutex.new
   end
 

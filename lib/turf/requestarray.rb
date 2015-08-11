@@ -31,7 +31,7 @@ class Turf::RequestArray
   end
 
   def select(&block)
-    Turf::RequestArray.new(@array.select &block)
+    Turf::RequestArray.new(@array.select(&block))
   end
 
   def done
