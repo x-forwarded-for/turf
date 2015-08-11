@@ -88,13 +88,13 @@ module Turf
     def build
       # Populate rows and update columns length if necessary
       rows = @requests.collect.with_index do |r, idx|
-          @columns.collect { |column|
-            v = column[:cb].call(r, idx).to_s
-            n = column[:name]
-            if v.uncolorize.length > column[:width]
-              column[:width] = v.uncolorize.length
-            end
-            v
+        @columns.collect { |column|
+          v = column[:cb].call(r, idx).to_s
+          n = column[:name]
+          if v.uncolorize.length > column[:width]
+            column[:width] = v.uncolorize.length
+          end
+          v
         }
       end
     end
@@ -102,14 +102,14 @@ module Turf
     def render
       thead = @columns.collect { |c| c[:name].ljust(c[:width]) }.join(" ")
       tbody = @rows.collect { |row|
-                row.collect.with_index { |cell, i|
-                  col = @columns[i]
-                  if cell.uncolorize.length > col[:width]
-                    cell = send(col[:adjust_cb], cell, col[:width], col[:adjust_args])
-                  end
-                  colorized_ljust(cell, col[:width])
-                }.join(" ")
-              }.join("\n")
+        row.collect.with_index { |cell, i|
+          col = @columns[i]
+          if cell.uncolorize.length > col[:width]
+            cell = send(col[:adjust_cb], cell, col[:width], col[:adjust_args])
+          end
+          colorized_ljust(cell, col[:width])
+        }.join(" ")
+      }.join("\n")
       [thead, tbody].join("\n")
     end
 
