@@ -177,7 +177,9 @@ class ProxyTest < MiniTest::Test
     assert_equal("CONNECT", @p.requests[0].method)
     assert_equal("CONNECT", @p.requests[1].method)
     assert_equal("GET", @p.requests[2].method)
-    refute_nil(@ui.errors.detect{|error| error.include? "unknown ca"})
+    assert_equal(2, @ui.errors.size)
+    assert_includes(@ui.errors, "The certificate has been rejected by your client.")
+    assert(@ui.errors.any? {|error| error.include? "unknown ca"})
   end
 
 end
