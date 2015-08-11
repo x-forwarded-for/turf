@@ -19,7 +19,7 @@ def start_basic_webrick
   server = WEBrick::HTTPServer.new(
     Port: 0,
     AccessLog: [],
-    Logger: WEBrick::Log::new("/dev/stderr", 1),
+    Logger: WEBrick::Log.new("/dev/stderr", 1),
     BindAddress: "127.0.0.1",
     StartCallback: Proc.new do
       mutex.synchronize { condition.signal }
@@ -60,7 +60,7 @@ def start_tls_webrick
     server = WEBrick::HTTPServer.new(
       Port: 0,
       AccessLog: [],
-      Logger: WEBrick::Log::new("/dev/stderr", 1),
+      Logger: WEBrick::Log.new("/dev/stderr", 1),
       SSLEnable: true,
       SSLCertName: cert_name,
       BindAddress: "127.0.0.1",

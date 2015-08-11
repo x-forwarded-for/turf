@@ -3,7 +3,7 @@ require_relative "../test_helper"
 class UtilsTest < MiniTest::Test
 
   def test_tableprinter
-    ra = Turf::get("http://this.is.a.very.long.domain.name.org/and/a/very/long/path/that/will/overflow/the/terminal/width/for/sure.html") * 4
+    ra = Turf.get("http://this.is.a.very.long.domain.name.org/and/a/very/long/path/that/will/overflow/the/terminal/width/for/sure.html") * 4
     fields = [{ name: "Hostname",
                 cb: Proc.new { |x| x.hostname},
                 weight: 0.2,

@@ -4,7 +4,7 @@ class RequestEnumTest < MiniTest::Test
 
   def setup
     @ws, @ws_port = start_basic_webrick
-    @r = Turf::post("http://127.0.0.1:#{@ws_port}/", {"var1" => "abcdefgh"})
+    @r = Turf.post("http://127.0.0.1:#{@ws_port}/", {"var1" => "abcdefgh"})
   end
 
   def teardown

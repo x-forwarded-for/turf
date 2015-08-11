@@ -3,7 +3,7 @@ require_relative "../test_helper"
 class ResponseTest < MiniTest::Test
 
   def setup
-    @r = Turf::get("http://example.org/")
+    @r = Turf.get("http://example.org/")
   end
 
   def test_new

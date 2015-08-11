@@ -35,7 +35,7 @@ class RequestTest < MiniTest::Test
   end
 
   def test_run
-    r = Turf::get("http://127.0.0.1:#{@ws_port}/")
+    r = Turf.get("http://127.0.0.1:#{@ws_port}/")
     r.run
     assert_equal("200", r.response.status)
     assert_includes(r.response.inspect, "text/plain")
@@ -71,26 +71,26 @@ class RequestTest < MiniTest::Test
   end
 
   def test_post_alias
-    r = Turf::post("http://127.0.0.1:#{@ws_port}/", "test" => 123)
+    r = Turf.post("http://127.0.0.1:#{@ws_port}/", "test" => 123)
     assert_equal(r.raw_content, "test=123")
     assert_equal("8", r.headers["Content-Length"])
   end
 
   def test_multipart_alias
-    r = Turf::multipart("http://127.0.0.1:#{@ws_port}/",
-                        "test" => 123,
-                        "file" => File.open("/etc/issue"),
-                        "file2" => {
-                            filename: "my_image.png",
-                            type: "image/png",
-                            content: "PNG\xff\xff"}
-                       )
+    r = Turf.multipart("http://127.0.0.1:#{@ws_port}/",
+                       "test" => 123,
+                       "file" => File.open("/etc/issue"),
+                       "file2" => {
+                           filename: "my_image.png",
+                           type: "image/png",
+                           content: "PNG\xff\xff"}
+                      )
     assert_includes(r.raw_content, "Content-Disposition: form-data; name=\"test\"\r\n\r\n123")
     assert_includes(r.raw_content, "Content-Type: image/png")
   end
 
   def test_modify_headers
-    r = Turf::get("http://127.0.0.1:#{@ws_port}/")
+    r = Turf.get("http://127.0.0.1:#{@ws_port}/")
     r.headers["Accept"] = "text/json"
     assert_equal("text/json", r.headers["Accept"])
     r.headers.delete "Accept"
@@ -98,11 +98,11 @@ class RequestTest < MiniTest::Test
   end
 
   def test_copy_state
-    r = Turf::get("http://127.0.0.1:#{@ws_port}/1")
+    r = Turf.get("http://127.0.0.1:#{@ws_port}/1")
     r.cookies["test"] = "1234"
     r.run
     r.response.cookies["test2"] = "4567"
-    r2 = Turf::get("http://127.0.0.1:#{@ws_port}/2")
+    r2 = Turf.get("http://127.0.0.1:#{@ws_port}/2")
     r2 << r
     assert_equal("1234", r2.cookies["test"])
     assert_equal("4567", r2.cookies["test2"])

@@ -24,7 +24,7 @@ class Turf::RequestArray
   def parallel(threads: 4)
     tds = []
     @array.group_by.with_index { |o, i| i % threads }.each_value { |slice|
-      tds << Thread::new(slice) { |s| run slice: s }
+      tds << Thread.new(slice) { |s| run slice: s }
     }
     tds.each { |t| t.join }
     nil
@@ -87,7 +87,7 @@ class Turf::RequestArray
     if length > 5
       columns.insert(0, {name: "Id", cb: Proc.new { |x, idx| idx} })
     end
-    Turf::tp self, columns
+    Turf.tp self, columns
   end
 
 end

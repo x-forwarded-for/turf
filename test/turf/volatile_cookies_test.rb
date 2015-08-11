@@ -3,7 +3,7 @@ require_relative "../test_helper"
 class VolatileCookiesTest < MiniTest::Test
 
   def test_new
-    r = Turf::get("http://example.org/")
+    r = Turf.get("http://example.org/")
     assert_empty(r.cookies)
     assert_nil(r.cookies["sessionid"])
     r.cookies["sessionid"] = "test"

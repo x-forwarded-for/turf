@@ -45,7 +45,7 @@ Content-Type: %s\r
 
   def post(url, args)
     host = URI(url).hostname
-    encoded_args = URI::encode_www_form(args)
+    encoded_args = URI.encode_www_form(args)
     r = Request.new(POST_TEMPLATE % [url, host, encoded_args])
     r.update_content_length
     r
