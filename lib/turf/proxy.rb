@@ -101,7 +101,7 @@ class Turf::Proxy
       end
     rescue Interrupt
       @server.shutdown
-      threads.each { |t| t.terminate }
+      threads.each(&:terminate)
     end
   end
 end

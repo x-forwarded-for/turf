@@ -26,7 +26,7 @@ class Turf::RequestArray
     @array.group_by.with_index { |o, i| i % threads }.each_value { |slice|
       tds << Thread.new(slice) { |s| run slice: s }
     }
-    tds.each { |t| t.join }
+    tds.each(&:join)
     nil
   end
 
@@ -52,7 +52,7 @@ class Turf::RequestArray
       end
     }
     st = status.to_a.collect{ |k,v| "#{Turf::Response.color_status(k)}:#{v}" }.join(" ")
-    hostnames = collect { |r| r.hostname }.uniq.join(", ")
+    hostnames = collect(&:hostname).uniq.join(", ")
     return "<#{length} | #{st} | #{hostnames}>"
   end
 
