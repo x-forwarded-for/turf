@@ -5,7 +5,7 @@ class Turf::History < Turf::RequestArray
     @lock = Mutex.new
   end
 
-  def << (op)
+  def <<(op)
     @lock.synchronize {
       super op
     }
