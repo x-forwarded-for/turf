@@ -64,7 +64,7 @@ class RequestTest < MiniTest::Test
          "Content-Type: application/x-www-form-urlencoded\r\n\r\n" +
          "abcdefgh"
     r = Turf::Request.new io
-    ira = r.inject_at("defgh", ["ijk", "l"])
+    ira = r.inject_at("defgh", %w(ijk l))
     assert_equal(ira.length, 2)
     assert_equal(ira[0].raw_content, "abcijk")
     assert_equal(ira[1].raw_content, "abcl")
