@@ -26,7 +26,7 @@ module Turf::Message
       raise Exception("Invalid Content-Length") if l < 0
       return read_exactly(io, l)
     elsif status or %w{POST PUT}.include? method
-      return io.read()
+      return io.read
     end
     return ""
   end
