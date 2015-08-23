@@ -159,4 +159,3 @@ module Turf
   end
 
 end
-

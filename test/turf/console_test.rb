@@ -13,4 +13,3 @@ class ConsoleTest < MiniTest::Test
   end
 
 end
-

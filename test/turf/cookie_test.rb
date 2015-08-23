@@ -10,4 +10,3 @@ class CookieTest < MiniTest::Test
   end
 
 end
-
