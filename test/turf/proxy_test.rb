@@ -1,5 +1,7 @@
 require_relative "../test_helper"
 
+require 'net/http'
+
 class ProxyTest < MiniTest::Test
 
   PROXY_RUNNING = /\ARunning on (.*):(?<proxy_port>[0-9]+)\z/
