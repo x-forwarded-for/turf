@@ -75,7 +75,7 @@ class Turf::Console
         @binding.local_variable_set "_", @last_result
       rescue Exception => exc
         print exc.class, ": ", exc, "\n"
-        #puts exc.backtrace
+        # puts exc.backtrace
       end
     end
   end

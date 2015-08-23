@@ -178,11 +178,6 @@ Style/IfUnlessModifier:
 Style/IndentHash:
   Enabled: false
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/LeadingCommentSpace:
-  Enabled: false
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Style/LineEndConcatenation:

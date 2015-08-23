@@ -45,11 +45,11 @@ module Turf
       @r.raw_headers = build(parse.select { |n,v| n != name })
     end
 
-    #def delete_first(name)
-    #end
+    # def delete_first(name)
+    # end
 
-    #def delete_last(name)
-    #end
+    # def delete_last(name)
+    # end
 
     def to_a
       parse
