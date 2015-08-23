@@ -8,7 +8,8 @@ class HistoryTest < MiniTest::Test
     h = Turf::Session.instance.history
     h_len = h.length
     r = Turf::Request.new("GET / HTTP/1.1\r\n\r\n", hostname: "127.0.0.1",
-                          port: ws_port, use_ssl: false)
+                                                    port: ws_port,
+                                                    use_ssl: false)
     r.run
 
     assert_equal(1, h.length - h_len)
