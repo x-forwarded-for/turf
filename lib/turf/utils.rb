@@ -142,7 +142,7 @@ module Turf
       }
     end
 
-  private
+    private
 
     def colorized_ljust(s, w)
       # Left adjust a string that is colorized
