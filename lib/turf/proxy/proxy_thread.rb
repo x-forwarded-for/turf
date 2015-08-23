@@ -34,8 +34,8 @@ module Turf
       context.key = @proxy.ca.key
       @client = OpenSSL::SSL::SSLSocket.new @client, context
       @client.accept
-      @request = Request.new @client, :hostname => hostname,
-                          :port => port, :use_ssl => true
+      @request = Request.new @client, hostname: hostname,
+                             port: port, use_ssl: true
     end
 
     def apply_rules
@@ -109,8 +109,8 @@ module Turf
 
     def read_request
       if @request and @request.use_ssl
-        @request = Request.new client, :hostname => @request.hostname,
-                          :port => @request.port, :use_ssl => true
+        @request = Request.new client, hostname: @request.hostname,
+                               port: @request.port, use_ssl: true
       else
         @request = Request.new client
       end
