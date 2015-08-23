@@ -1,6 +1,6 @@
 require_relative "../test_helper"
 
-require 'net/http'
+require "net/http"
 
 class ProxyTest < MiniTest::Test
 

@@ -228,7 +228,7 @@ class Turf::Request
 
   def self.color_method(method)
     return method.blue if ["GET"].include? method
-    return method.green if ["POST", "PUT"].include? method
+    return method.green if %w(POST PUT).include? method
     return method.yellow if ["CONNECT"].include? method
     return method
   end
