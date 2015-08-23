@@ -51,7 +51,7 @@ class Turf::RequestArray
         status["unknown"] += 1
       end
     }
-    st = status.to_a.collect{ |k,v| "#{Turf::Response.color_status(k)}:#{v}" }.join(" ")
+    st = status.to_a.collect { |k,v| "#{Turf::Response.color_status(k)}:#{v}" }.join(" ")
     hostnames = collect(&:hostname).uniq.join(", ")
     return "<#{length} | #{st} | #{hostnames}>"
   end
@@ -85,7 +85,7 @@ class Turf::RequestArray
       }
     ]
     if length > 5
-      columns.insert(0, {name: "Id", cb: Proc.new { |x, idx| idx} })
+      columns.insert(0, { name: "Id", cb: Proc.new { |x, idx| idx } })
     end
     Turf.tp self, columns
   end

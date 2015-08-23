@@ -15,7 +15,7 @@ module Turf
     end
 
     def []=(key, value)
-      @r.raw_headers = build(parse.merge({key => value}))
+      @r.raw_headers = build(parse.merge({ key => value }))
     end
 
     def delete(key)

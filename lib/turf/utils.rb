@@ -119,8 +119,8 @@ module Turf
       # Share the remaining width between all adjustables columns
       loop do
         done = true
-        remaining_width = @width - fixed.inject(0) {|m, c| m + c[:width] + 1}
-        total_weight = adjustables.inject(0) {|m, c| m + c[:weight]}
+        remaining_width = @width - fixed.inject(0) { |m, c| m + c[:width] + 1 }
+        total_weight = adjustables.inject(0) { |m, c| m + c[:weight] }
         adjustables.each { |a|
           allocated_width = remaining_width * (a[:weight].to_f/total_weight) - 1
           # If we have over-allocated space for one column,
@@ -135,8 +135,8 @@ module Turf
       end
       # For the columns that have not been succesfully adjusted
       # truncate the width according to their preferences
-      remaining_width = @width - fixed.inject(0) {|m, c| m + c[:width] + 1}
-      total_weight = adjustables.inject(0) {|m, c| m + c[:weight]}
+      remaining_width = @width - fixed.inject(0) { |m, c| m + c[:width] + 1 }
+      total_weight = adjustables.inject(0) { |m, c| m + c[:weight] }
       adjustables.each { |a|
         a[:width] = remaining_width * (a[:weight].to_f/total_weight) - 1
       }

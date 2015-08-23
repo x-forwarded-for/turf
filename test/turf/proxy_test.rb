@@ -181,7 +181,7 @@ class ProxyTest < MiniTest::Test
     assert_equal("GET", @p.requests[2].method)
     assert_equal(2, @ui.errors.size)
     assert_includes(@ui.errors, "The certificate has been rejected by your client.")
-    assert(@ui.errors.any? {|error| error.include? "unknown ca"})
+    assert(@ui.errors.any? { |error| error.include? "unknown ca" })
   end
 
 end

@@ -16,7 +16,7 @@ module Turf
     end
 
     def save
-      s = {history: @history.to_a}
+      s = { history: @history.to_a }
       b = IRB.conf[:MAIN_CONTEXT].workspace.binding
       b.eval("local_variables").each { |v|
         s[v] = b.local_variable_get(v)
@@ -38,7 +38,7 @@ module Turf
         @name = name
         s = Marshal.load(File.open(fname))
         b = IRB.conf[:MAIN_CONTEXT].workspace.binding
-        s.reject{|k,v| k == :history}.each { |k,v|
+        s.reject { |k,v| k == :history }.each { |k,v|
           b.local_variable_set(k, v)
         }
         @history = History.new s[:history]

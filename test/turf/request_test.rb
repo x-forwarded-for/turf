@@ -83,7 +83,7 @@ class RequestTest < MiniTest::Test
                        "file2" => {
                            filename: "my_image.png",
                            type: "image/png",
-                           content: "PNG\xff\xff"}
+                           content: "PNG\xff\xff" }
                       )
     assert_includes(r.raw_content, "Content-Disposition: form-data; name=\"test\"\r\n\r\n123")
     assert_includes(r.raw_content, "Content-Type: image/png")

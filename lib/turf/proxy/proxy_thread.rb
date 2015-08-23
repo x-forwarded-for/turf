@@ -121,8 +121,8 @@ module Turf
     end
 
     def interact_request
-      action_map = {"c" => :continue, "v" => :view,
-                    "d" => :drop, "h" => :view_headers }
+      action_map = { "c" => :continue, "v" => :view,
+                     "d" => :drop, "h" => :view_headers }
       action_map_http  = action_map.merge({ "f" => :forward })
       action_map_https = action_map.merge({ "m" => :mitm_ssl })
       am = is_connect? ? action_map_https : action_map_http
@@ -141,9 +141,9 @@ module Turf
     end
 
     def interact_response
-      action_map = {"c" => :continue, "v" => :view,
-                    "d" => :drop, "h" => :view_headers }
-      action_map = action_map.merge({ "f" => :forward})
+      action_map = { "c" => :continue, "v" => :view,
+                     "d" => :drop, "h" => :view_headers }
+      action_map = action_map.merge({ "f" => :forward })
       loop do
         a = @proxy.ui.ask "[f]orward, (c)ontinue, (d)rop, (v)iew, (h)eaders ? "
         a = a.empty? ? "f" : a
