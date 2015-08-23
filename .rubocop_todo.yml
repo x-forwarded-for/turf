@@ -130,11 +130,6 @@ Style/ClassAndModuleChildren:
 Style/ClassMethods:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/DeprecatedHashMethods:
-  Enabled: false
-
 # Offense count: 35
 Style/Documentation:
   Enabled: false

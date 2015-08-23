@@ -74,7 +74,7 @@ module Turf
           column[:weight] = nil
           column
         else
-          if not c.has_key?(:name) or not c.has_key?(:cb)
+          if not c.key?(:name) or not c.key?(:cb)
             raise Exception.new ":name and :cb are mandatory"
           end
           c[:width] ||= c[:name].length
