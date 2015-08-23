@@ -11,7 +11,7 @@ class Turf::Cookie
   end
 
   def build
-   "#{@name}=#{value}"
+    "#{@name}=#{value}"
   end
 
   def self.parse(header, set_cookie = false)
