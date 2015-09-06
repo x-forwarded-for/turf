@@ -71,10 +71,8 @@ class ProxyTest < MiniTest::Test
     p, p_port = start_proxy
     ws, ws_port = start_basic_webrick
 
-    uri = URI.parse("http://127.0.0.1:#{ws_port}/")
-    req = Net::HTTP::Get.new(uri.request_uri)
-    con = Net::HTTP.new(uri.host, uri.port, "127.0.0.1", p_port)
-    res = con.request(req)
+    r = Turf.get("http://127.0.0.1:#{ws_port}/")
+    r.run(proxy: "http://127.0.0.1:#{p_port}")
 
     p.raise Interrupt
     p.join
@@ -86,12 +84,8 @@ class ProxyTest < MiniTest::Test
     p, p_port = start_proxy
     ws, ws_port = start_tls_webrick
 
-    uri = URI.parse("https://127.0.0.1:#{ws_port}/")
-    req = Net::HTTP::Get.new(uri.request_uri)
-    con = Net::HTTP.new(uri.host, uri.port, "127.0.0.1", p_port)
-    con.use_ssl = true
-    con.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    res = con.request(req)
+    r = Turf.get("https://127.0.0.1:#{ws_port}/")
+    r.run(proxy: "http://127.0.0.1:#{p_port}")
 
     p.raise Interrupt.new
     p.join
@@ -115,13 +109,9 @@ class ProxyTest < MiniTest::Test
     p, p_port = start_proxy
     ws, ws_port = start_basic_webrick
 
-
-    uri = URI.parse("http://127.0.0.1:#{ws_port}/")
-    req = Net::HTTP::Get.new(uri.request_uri)
-    con = Net::HTTP.new(uri.host, uri.port, "127.0.0.1", p_port)
-    res = con.request(req)
-
-    assert_equal("200", res.code)
+    r = Turf.get("http://127.0.0.1:#{ws_port}/")
+    r.run(proxy: "http://127.0.0.1:#{p_port}")
+    assert_equal("200", r.response.status)
 
     p.raise Interrupt
     p.join
@@ -137,12 +127,10 @@ class ProxyTest < MiniTest::Test
     p, p_port = start_proxy
     ws, ws_port = start_basic_webrick
 
-    uri = URI.parse("http://127.0.0.1:#{ws_port}/lol")
-    req = Net::HTTP::Get.new(uri.request_uri)
-    con = Net::HTTP.new(uri.host, uri.port, "127.0.0.1", p_port)
+    r = Turf::get("http://127.0.0.1:#{ws_port}/")
 
     assert_raises(EOFError) {
-      res = con.request(req)
+      r.run(proxy: "http://127.0.0.1:#{p_port}")
     }
 
     p.raise Interrupt
@@ -150,9 +138,8 @@ class ProxyTest < MiniTest::Test
     ws.terminate
 
     # two because of net/http retrying?
-    assert_equal(2, @p.requests.length)
+    assert_equal(1, @p.requests.length)
     assert_nil(@p.requests[0].response)
-    assert_nil(@p.requests[1].response)
   end
 
   def test_cert_rejected_followed_by_not_rejected
