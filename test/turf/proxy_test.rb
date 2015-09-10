@@ -90,7 +90,7 @@ class ProxyTest < MiniTest::Test
     r = Turf.get("https://127.0.0.1:#{ws_port}/")
     r.run(proxy: "http://127.0.0.1:#{p[:port]}")
 
-    p[:thread].raise Interrupt.new
+    p[:thread].raise Interrupt
     p[:thread].join
     ws.terminate
     assert_equal(2, p[:proxy].requests.length)
@@ -162,7 +162,7 @@ class ProxyTest < MiniTest::Test
     con.verify_mode = OpenSSL::SSL::VERIFY_NONE
     res2 = con.request(req)
 
-    p[:thread].raise Interrupt.new
+    p[:thread].raise Interrupt
     p[:thread].join
     ws.terminate
     assert_equal(3, p[:proxy].requests.length)
