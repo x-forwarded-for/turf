@@ -54,7 +54,7 @@ class ProxyTest < MiniTest::Test
     }
   end
 
-  def test_irb_stop_after_start
+  def test_no_requests
     def @ui.info(message, from: nil)
       super
       raise Interrupt
@@ -66,7 +66,7 @@ class ProxyTest < MiniTest::Test
     assert_empty(p[:proxy].requests)
   end
 
-  def test_one_request
+  def test_single_http_request
     def @ui.ask(q)
       "f"
     end
@@ -83,7 +83,7 @@ class ProxyTest < MiniTest::Test
     assert_equal(1, p[:proxy].requests.length)
   end
 
-  def test_mitm_ssl
+  def test_cert_accepted_by_client
     p = start_proxy
     ws, ws_port = start_tls_webrick
 
