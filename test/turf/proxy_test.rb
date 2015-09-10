@@ -67,10 +67,6 @@ class ProxyTest < MiniTest::Test
   end
 
   def test_single_http_request
-    def @ui.ask(q)
-      "f"
-    end
-
     p = start_proxy
     ws, ws_port = start_basic_webrick
 
@@ -173,5 +169,23 @@ class ProxyTest < MiniTest::Test
     assert_includes(@ui.errors, "The certificate has been rejected by your client.")
     assert(@ui.errors.any? { |error| error.include? "unknown ca" })
   end
+
+  def test_forward
+    def @ui.ask(q)
+      "f"
+    end
+
+    p = start_proxy
+    ws, ws_port = start_basic_webrick
+
+    r = Turf.get("http://127.0.0.1:#{ws_port}/")
+    r.run(proxy: "http://127.0.0.1:#{p[:port]}")
+
+    p[:thread].raise Interrupt
+    p[:thread].join
+    ws.terminate
+    assert_equal(1, p[:proxy].requests.length)
+  end
+
 
 end
