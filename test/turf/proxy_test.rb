@@ -137,7 +137,6 @@ class ProxyTest < MiniTest::Test
     p.join
     ws.terminate
 
-    # two because of net/http retrying?
     assert_equal(1, @p.requests.length)
     assert_nil(@p.requests[0].response)
   end
