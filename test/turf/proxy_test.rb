@@ -187,5 +187,28 @@ class ProxyTest < MiniTest::Test
     assert_equal(1, p[:proxy].requests.length)
   end
 
+  def test_start_proxy_included_module
+    def @ui.info(message, from: nil)
+      super
+      raise Interrupt
+    end
+
+    self.class.send(:include, Turf)
+    proxy(port: 0, ui: @ui)
+
+    assert(@ui.infos.find{|info| info.start_with? "Running on 127.0.0.1:"})
+  end
+
+  def test_start_proxy_module_function
+    def @ui.info(message, from: nil)
+      super
+      raise Interrupt
+    end
+
+    Turf.proxy(port: 0, ui: @ui)
+
+    assert(@ui.infos.find{|info| info.start_with? "Running on 127.0.0.1:"})
+  end
+
 
 end

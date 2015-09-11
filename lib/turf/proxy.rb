@@ -14,7 +14,7 @@ module Turf
   # Example:
   #     ra = proxy
   #
-  def proxy(args = {})
+  module_function def proxy(args = {})
     p = Proxy.new args
     p.bind
     p.serve
