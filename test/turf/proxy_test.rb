@@ -48,7 +48,8 @@ class ProxyTest < MiniTest::Test
       end
       proxy_started.wait(mutex)
     end
-    return { thread: proxy_thread,
+    return {
+      thread: proxy_thread,
       proxy: proxy,
       port: proxy.port,
     }
@@ -127,7 +128,7 @@ class ProxyTest < MiniTest::Test
     p = start_proxy
     ws, ws_port = start_basic_webrick
 
-    r = Turf::get("http://127.0.0.1:#{ws_port}/")
+    r = Turf.get("http://127.0.0.1:#{ws_port}/")
 
     assert_raises(EOFError) {
       r.run(proxy: "http://127.0.0.1:#{p[:port]}")
@@ -196,7 +197,7 @@ class ProxyTest < MiniTest::Test
     self.class.send(:include, Turf)
     proxy(port: 0, ui: @ui)
 
-    assert(@ui.infos.find{|info| info.start_with? "Running on 127.0.0.1:"})
+    assert(@ui.infos.find { |info| info.start_with? "Running on 127.0.0.1:" })
   end
 
   def test_start_proxy_module_function
@@ -207,7 +208,7 @@ class ProxyTest < MiniTest::Test
 
     Turf.proxy(port: 0, ui: @ui)
 
-    assert(@ui.infos.find{|info| info.start_with? "Running on 127.0.0.1:"})
+    assert(@ui.infos.find { |info| info.start_with? "Running on 127.0.0.1:" })
   end
 
 
