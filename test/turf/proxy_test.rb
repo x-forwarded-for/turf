@@ -211,5 +211,28 @@ class ProxyTest < MiniTest::Test
     assert(@ui.infos.find { |info| info.start_with? "Running on 127.0.0.1:" })
   end
 
+  def test_view
+    def @ui.ask(question)
+      if not defined? @should_view
+        @should_view = true
+      else
+        @should_view = !@should_view
+      end
+      return (@should_view ? "v" : "f")
+    end
+
+    p = start_proxy
+    ws, ws_port = start_basic_webrick
+
+    r = Turf.get("http://127.0.0.1:#{ws_port}/")
+    r.run(proxy: "http://127.0.0.1:#{p[:port]}")
+
+    p[:thread].raise Interrupt
+    p[:thread].join
+    ws.terminate
+    assert_equal(1, p[:proxy].requests.length)
+    assert_includes(@ui.infos, r.to_s)
+    assert_includes(@ui.infos, r.response.to_s)
+  end
 
 end

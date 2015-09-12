@@ -103,8 +103,15 @@ module Turf
 
       @request.run
 
-      @proxy.ui.info @request.response.inspect
-      interact_response unless @proxy.continue
+      loop do
+        @proxy.ui.info @request.response.inspect
+        action = interact_response unless @proxy.continue
+        if action == :view
+          @proxy.ui.info @request.response.to_s
+        else
+          break
+        end
+      end
       write_response
     end
 
