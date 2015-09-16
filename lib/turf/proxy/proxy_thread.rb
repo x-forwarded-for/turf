@@ -49,7 +49,7 @@ module Turf
       read_request
       request_prologue
 
-      # TODO: - replace this with some form of "run all requests"
+      # TODO: - replace this with some form of "run all plugins for requests"
       Proxy::RequestPlugin::ManualInteraction.run(proxy, self)
 
       @request.run
