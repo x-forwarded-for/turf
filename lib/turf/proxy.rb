@@ -43,6 +43,7 @@ class Turf::Proxy
 
   require_relative "proxy/proxy_thread"
   require_relative "proxy/console_ui"
+  require_relative "proxy/request_plugin"
 
   attr_reader :port
   attr_accessor :rules
