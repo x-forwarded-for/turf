@@ -8,10 +8,12 @@ class ProxyTest < MiniTest::Test
 
     attr_reader :errors
     attr_reader :infos
+    attr_reader :asks
 
     def initialize
       @errors = []
       @infos = []
+      @asks = []
     end
 
     def info(message, from: nil)
@@ -19,6 +21,7 @@ class ProxyTest < MiniTest::Test
     end
 
     def ask(q)
+      @asks << q
       ""
     end
 
@@ -95,6 +98,7 @@ class ProxyTest < MiniTest::Test
 
   def test_continue
     def @ui.ask(q)
+      super
       "c"
     end
 
@@ -110,14 +114,18 @@ class ProxyTest < MiniTest::Test
     p = start_proxy
     ws, ws_port = start_basic_webrick
 
-    r = Turf.get("http://127.0.0.1:#{ws_port}/")
-    r.run(proxy: "http://127.0.0.1:#{p[:port]}")
-    assert_equal("200", r.response.status)
+    request_count = 5
+    request_count.times do
+      r = Turf.get("http://127.0.0.1:#{ws_port}/")
+      r.run(proxy: "http://127.0.0.1:#{p[:port]}")
+      assert_equal("200", r.response.status)
+    end
 
     p[:thread].raise Interrupt
     p[:thread].join
     ws.terminate
-    assert_equal(1, p[:proxy].requests.length)
+    assert_equal(request_count, p[:proxy].requests.length)
+    assert_equal(1, @ui.asks.size)
   end
 
   def test_drop
